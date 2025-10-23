@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站管理 - 清源</title>
+    <style>
+        :root{
+            --bg:#0b0f14;
+            --card:#121821;
+            --txt:#e6edf3;
+            --muted:#9fb3c8;
+            --pri:#5aa9ff;
+            --accent:#7c4dff;
+            --base-size: 1rem;
+            --scale-mobile: 0.875;
+            --scale-tablet: 0.9375;
+            --scale-desktop: 1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #0b0f14, #0e141b);
+            color: var(--txt);
+            min-height: 100vh;
+            padding: 1.25rem;
+            font-size: var(--base-size);
+        }
+        
+        .container {
+            max-width: 75rem;
+            margin: 0 auto;
+            background: rgba(18, 24, 33, 0.9);
+            border: 1px solid #2a3442;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 1.875rem;
+        }
+        
+        .header h1 {
+            color: var(--pri);
+            font-size: 2.5rem;
+            margin-bottom: 0.625rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1.875rem;
+            border-bottom: 2px solid #2a3442;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 0.9375rem 1.5625rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--muted);
+            font-size: var(--base-size);
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            color: var(--pri);
+            border-bottom-color: var(--pri);
+        }
+        
+        .tab:hover {
+            background: rgba(18, 24, 33, 0.5);
+            color: var(--txt);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            margin-bottom: 1.875rem;
+        }
+        
+        .info-tip {
+            background: linear-gradient(135deg, #1e3a8a, #1e40af);
+            border: 1px solid #3b82f6;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .tip-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+        
+        .tip-content {
+            color: #e0e7ff;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+        
+        .tip-content strong {
+            color: #fbbf24;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 0.9375rem;
+            font-size: 1.3rem;
+        }
+        
+        .site-list {
+            background: rgba(15, 21, 29, 0.6);
+            border: 1px solid #2a3442;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .site-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.125rem;
+            background: linear-gradient(135deg, rgba(15, 21, 29, 0.8), rgba(18, 24, 33, 0.6));
+            border: 1px solid #2a3442;
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+        
+        .site-item:hover {
+            transform: translateY(-0.125rem);
+            box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.4);
+            border-color: #3a4552;
+        }
+        
+        .site-info {
+            flex: 1;
+        }
+        
+        .site-domain {
+            font-weight: 600;
+            color: var(--txt);
+            margin-bottom: 0.3125rem;
+            font-size: var(--base-size);
+        }
+        
+        .site-actions {
+            display: flex;
+            gap: 0.625rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #2a3442;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--card);
+            color: var(--txt);
+            font-weight: 500;
+            box-shadow: none;
+            white-space: nowrap;
+        }
+        
+        .btn-primary {
+            background: var(--card);
+            color: var(--txt);
+            border-color: #2a3442;
+        }
+        
+        .btn-danger {
+            background: var(--card);
+            color: var(--txt);
+            border-color: #2a3442;
+        }
+        
+        .btn-success {
+            background: var(--card);
+            color: var(--txt);
+            border-color: #2a3442;
+        }
+        
+        .btn-warning {
+            background: var(--card);
+            color: var(--txt);
+            border-color: #2a3442;
+        }
+        
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-0.0625rem);
+        }
+        
+        /* Toast 提示样式 */
+        .toast {
+            position: fixed;
+            top: 1.25rem;
+            right: 1.25rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            color: var(--txt);
+            font-weight: 500;
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            font-size: var(--base-size);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.success {
+            background: rgba(40, 167, 69, 0.9);
+            border: 1px solid #27ae60;
+        }
+        
+        .toast.error {
+            background: rgba(220, 53, 69, 0.9);
+            border: 1px solid #e74c3c;
+        }
+        
+        .toast.info {
+            background: rgba(18, 24, 33, 0.9);
+            border: 1px solid #2a3442;
+        }
+        
+        /* 背景大字体 */
+        .bg-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            font-weight: 900;
+            color: transparent;
+            z-index: 1;
+            pointer-events: none;
+            user-select: none;
+            letter-spacing: 20px;
+            opacity: 0.2;
+            -webkit-text-stroke: 2px rgba(135, 206, 235, 0.2);
+            text-shadow: 0 0 10px rgba(135, 206, 235, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--txt);
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #2a3442;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            background: #0f151d;
+            color: var(--txt);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--pri);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .blacklist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid #e74c3c;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .status-enabled {
+            background: rgba(40, 167, 69, 0.2);
+            color: #6bcf7f;
+            border: 1px solid #27ae60;
+        }
+        
+        .status-disabled {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #e74c3c;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #ff6b6b;
+            border: 1px solid #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        /* 滚动条样式 - 与index.html保持一致 */
+        #keywords-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        #keywords-list::-webkit-scrollbar-track {
+            background: rgba(18, 24, 33, 0.3);
+            border-radius: 4px;
+        }
+        #keywords-list::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(135, 206, 235, 0.4), rgba(135, 206, 235, 0.2));
+            border-radius: 4px;
+            border: 1px solid rgba(135, 206, 235, 0.1);
+        }
+        #keywords-list::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(135, 206, 235, 0.6), rgba(135, 206, 235, 0.4));
+        }
+        
+        /* 自适应样式 - 使用rem单位 */
+        @media (max-width: 768px) {
+            html{font-size: 14px;}
+            
+            .container{padding:1.5rem;margin:0.5rem;}
+            .header h1{font-size:2rem;}
+            .header p{font-size:1rem;}
+            .tabs{flex-direction:column;gap:0.5rem;}
+            .tab{padding:0.75rem 1rem;text-align:center;}
+            .site-item{flex-direction:column;gap:1rem;align-items:stretch;}
+            .site-actions{justify-content:center;}
+            .btn{padding:0.5rem 0.75rem;font-size:0.8rem;}
+            .toast{top:1rem;right:1rem;left:1rem;max-width:none;}
+        }
+        
+        @media (max-width: 480px) {
+            html{font-size: 13px;}
+            
+            .container{padding:1rem;margin:0.25rem;}
+            .header h1{font-size:1.75rem;}
+            .header p{font-size:0.9rem;}
+            .tabs{flex-direction:column;gap:0.25rem;}
+            .tab{padding:0.625rem 0.75rem;font-size:0.9rem;}
+            .section{margin-bottom:1.25rem;}
+            .section h3{font-size:1.1rem;}
+            .site-list{padding:0.75rem;}
+            .site-item{padding:0.75rem;}
+            .site-domain{font-size:0.9rem;}
+            .btn{padding:0.375rem 0.625rem;font-size:0.75rem;}
+            .toast{top:0.75rem;right:0.75rem;left:0.75rem;padding:0.625rem 1rem;font-size:0.8rem;}
+        }
+        
+        @media (max-width: 360px) {
+            html{font-size: 12px;}
+            
+            .container{padding:0.75rem;margin:0.125rem;}
+            .header h1{font-size:1.5rem;}
+            .header p{font-size:0.8rem;}
+            .tabs{flex-direction:column;gap:0.125rem;}
+            .tab{padding:0.5rem 0.625rem;font-size:0.8rem;}
+            .section{margin-bottom:1rem;}
+            .section h3{font-size:1rem;}
+            .site-list{padding:0.5rem;}
+            .site-item{padding:0.5rem;}
+            .site-domain{font-size:0.8rem;}
+            .btn{padding:0.25rem 0.5rem;font-size:0.7rem;}
+            .toast{top:0.5rem;right:0.5rem;left:0.5rem;padding:0.5rem 0.75rem;font-size:0.75rem;}
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: var(--card);
+            border: 1px solid #2a3442;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #2a3442;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            color: var(--pri);
+            font-size: 1.25rem;
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--txt);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid #2a3442;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+        
+        .modal-footer .btn {
+            padding: 0.5rem 1rem;
+        }
+        
+        .modal textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #2a3442;
+            border-radius: 0.375rem;
+            background: var(--bg);
+            color: var(--txt);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .modal textarea:focus {
+            outline: none;
+            border-color: var(--pri);
+        }
+        
+        /* 网站选项样式 */
+        .site-options {
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: 1rem;
+            height: 1rem;
+            accent-color: var(--pri);
+        }
+        
+        .checkbox-label span {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-text">清源</div>
+    <div class="container">
+        <div class="header">
+            <h1>网站管理</h1>
+            <p>管理搜索网站配置和搜索设置</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="overview">概览</div>
+            <div class="tab" data-tab="web">网页搜索</div>
+            <div class="tab" data-tab="images">图片搜索</div>
+            <div class="tab" data-tab="videos">视频搜索</div>
+            <div class="tab" data-tab="resources">资源搜索</div>
+            <div class="tab" data-tab="blacklist">黑名单</div>
+            <div class="tab" data-tab="settings">设置</div>
+        </div>
+        
+        <!-- 概览页面 -->
+        <div id="overview" class="tab-content active">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="web-count">0</div>
+                    <div class="stat-label">网页网站</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="image-count">0</div>
+                    <div class="stat-label">图片网站</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="video-count">0</div>
+                    <div class="stat-label">视频网站</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="resource-count">0</div>
+                    <div class="stat-label">资源网站</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="blacklist-count">0</div>
+                    <div class="stat-label">黑名单</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>快速操作</h3>
+                <div class="site-list">
+                    <button class="btn btn-primary" onclick="refreshData()">刷新数据</button>
+                    <button class="btn btn-success" onclick="exportConfig()">导出配置</button>
+                    <button class="btn btn-warning" onclick="importConfig()">导入配置</button>
+                    <button class="btn btn-danger" onclick="resetConfig()">重置配置</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 网页搜索页面 -->
+        <div id="web" class="tab-content">
+            <div class="section">
+                <div class="info-tip">
+                    <div class="tip-content">
+                        <strong>注意：</strong>部分网站可能会遇到403错误导致无法访问。搜索速度与结果取决于设置的网站、网速和所在地区。
+                    </div>
+                </div>
+                <h3>添加网页网站</h3>
+                <div class="site-list">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="web-domain" placeholder="例如: github.com">
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL模板（可选）</label>
+                            <input type="text" id="web-search-urls" placeholder="例如: https://github.com/search?q={query}，多个用逗号分隔">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>复制搜索链接（自动解析）</label>
+                            <input type="text" id="web-copy-url" placeholder="粘贴一个搜索链接，例如: https://github.com/search?q=python">
+                            <button class="btn btn-secondary" onclick="parseWebUrl()">解析链接</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addWebSite()">添加网站</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>网页网站列表</h3>
+                <div id="web-sites" class="site-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图片搜索页面 -->
+        <div id="images" class="tab-content">
+            <div class="section">
+                <div class="info-tip">
+                    <div class="tip-content">
+                        <strong>注意：</strong>图片搜索优先使用搜索引擎的图片搜索，如果结果不足会使用配置的网站补充。部分网站可能会遇到403错误导致无法访问。
+                    </div>
+                </div>
+                <h3>添加图片网站</h3>
+                <div class="site-list">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="image-domain" placeholder="例如: unsplash.com">
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL模板（可选）</label>
+                            <input type="text" id="image-search-urls" placeholder="例如: https://unsplash.com/s/photos/{query}，多个用逗号分隔">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>复制搜索链接（自动解析）</label>
+                            <input type="text" id="image-copy-url" placeholder="粘贴一个搜索链接，例如: https://unsplash.com/s/photos/nature">
+                            <button class="btn btn-secondary" onclick="parseImageUrl()">解析链接</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addImageSite()">添加网站</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>图片网站列表</h3>
+                <div id="image-sites" class="site-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 视频搜索页面 -->
+        <div id="videos" class="tab-content">
+            <div class="section">
+                <div class="info-tip">
+                    <div class="tip-content">
+                        <strong>注意：</strong>视频搜索主要使用搜索引擎的视频搜索功能，配置的网站主要用于补充。搜索速度与结果取决于设置的网站、网速和所在地区。
+                    </div>
+                </div>
+                <h3>添加视频网站</h3>
+                <div class="site-list">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="video-domain" placeholder="例如: bilibili.com">
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL模板（可选）</label>
+                            <input type="text" id="video-search-urls" placeholder="例如: https://search.bilibili.com/video?keyword={query}，多个用逗号分隔">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>复制搜索链接（自动解析）</label>
+                            <input type="text" id="video-copy-url" placeholder="粘贴一个搜索链接，例如: https://search.bilibili.com/video?keyword=python">
+                            <button class="btn btn-secondary" onclick="parseVideoUrl()">解析链接</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addVideoSite()">添加网站</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>视频网站列表</h3>
+                <div id="video-sites" class="site-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 资源搜索页面 -->
+        <div id="resources" class="tab-content">
+            <div class="section">
+                <div class="info-tip">
+                    <div class="tip-content">
+                        <strong>注意：</strong>资源搜索仅使用配置的资源网站进行直接搜索。部分网站可能会遇到403错误导致无法访问。
+                    </div>
+                </div>
+                <h3>添加资源网站</h3>
+                <div class="site-list">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="resource-domain" placeholder="例如: pan.baidu.com">
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL模板（可选）</label>
+                            <input type="text" id="resource-search-urls" placeholder="例如: https://pan.baidu.com/s?wd={query}，多个用逗号分隔">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>复制搜索链接（自动解析）</label>
+                            <input type="text" id="resource-copy-url" placeholder="粘贴一个搜索链接，例如: https://pan.baidu.com/s/1abc123">
+                            <button class="btn btn-secondary" onclick="parseResourceUrl()">解析链接</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addResourceSite()">添加网站</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>资源网站列表</h3>
+                <div id="resource-sites" class="site-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 黑名单页面 -->
+        <div id="blacklist" class="tab-content">
+            <div class="section">
+                <div class="info-tip">
+                    <div class="tip-content">
+                        <strong>注意：</strong>黑名单中的域名将被完全过滤，不会出现在任何搜索结果中。请谨慎添加，避免误过滤有用网站。
+                    </div>
+                </div>
+                <h3>添加黑名单</h3>
+                <div class="site-list">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="blacklist-domain" placeholder="例如: spam.com">
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="addToBlacklistManual()">添加到黑名单</button>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>黑名单列表</h3>
+                <div id="blacklist-sites" class="site-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 设置页面 -->
+        <div id="settings" class="tab-content">
+            <div class="section">
+                <h3>搜索设置</h3>
+                <div class="site-list">
+                    <div class="form-group">
+                        <label>搜索URL模板管理</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <select id="search-url-site-type" class="form-control" style="flex: 1;">
+                                <option value="resource_sites">资源网站</option>
+                                <option value="web_sites">网页网站</option>
+                                <option value="video_sites">视频网站</option>
+                                <option value="image_sites">图片网站</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="loadSearchUrls()">加载配置</button>
+                        </div>
+                        <div id="search-urls-container" style="display: none;">
+                            <div id="search-urls-list"></div>
+                            <button class="btn btn-success" onclick="saveSearchUrls()" style="margin-top: 10px;">保存配置</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>每个搜索引擎最大结果数（会影响加载速度）</label>
+                        <input type="number" id="engine-max-results" value="35" min="1" max="1000">
+                        <small style="color: var(--muted);">设置每个搜索引擎返回的最大结果数，数值越大加载越慢但结果越全面</small>
+                    </div>
+                    <div class="form-group">
+                        <label>每个网站搜索超时时间（秒）</label>
+                        <input type="number" id="site-timeout" value="8" min="1" max="60">
+                        <small style="color: var(--muted);">设置每个网站搜索的超时时间，时间越长等待越久但成功率越高</small>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+
+    <script>
+        let config = {};
+        
+        // 自适应功能
+        var isMobile = false
+        var isTablet = false
+        var isDesktop = true
+        
+        // 检测设备类型
+        function detectDevice() {
+            const width = window.innerWidth
+            if (width <= 360) {
+                isMobile = true
+                isTablet = false
+                isDesktop = false
+                document.documentElement.style.fontSize = '12px'
+            } else if (width <= 768) {
+                isMobile = false
+                isTablet = true
+                isDesktop = false
+                document.documentElement.style.fontSize = '14px'
+            } else {
+                isMobile = false
+                isTablet = false
+                isDesktop = true
+                document.documentElement.style.fontSize = '16px'
+            }
+            
+            // 更新UI元素
+            updateUIForDevice()
+        }
+        
+        // 根据设备类型更新UI
+        function updateUIForDevice() {
+            const container = document.querySelector('.container')
+            const tabs = document.querySelector('.tabs')
+            
+            if (isMobile) {
+                // 移动端优化
+                if (container) container.classList.add('mobile')
+                if (tabs) tabs.classList.add('mobile')
+            } else if (isTablet) {
+                // 平板优化
+                if (container) container.classList.add('tablet')
+                if (tabs) tabs.classList.add('tablet')
+            } else {
+                // 桌面端
+                if (container) container.classList.remove('mobile', 'tablet')
+                if (tabs) tabs.classList.remove('mobile', 'tablet')
+            }
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化自适应功能
+            detectDevice()
+            
+            // 监听窗口大小变化
+            window.addEventListener('resize', function(){
+                detectDevice()
+            })
+            
+            loadConfig();
+            setupTabs();
+        });
+        
+        // 设置标签页
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // 移除所有活动状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    // 添加活动状态
+                    this.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                    
+                    // 加载对应数据
+                    if (targetTab !== 'overview') {
+                        loadTabData(targetTab);
+                    }
+                });
+            });
+        }
+        
+        // 重新加载当前标签页的网站列表
+        function loadSites() {
+            const currentTab = document.querySelector('.tab.active');
+            if (currentTab) {
+                const tabName = currentTab.getAttribute('data-tab');
+                loadTabData(tabName);
+            }
+        }
+        
+        // 加载配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                config = await response.json();
+                updateOverview();
+                loadSettings();
+                
+                // 刷新所有网站列表
+                loadWebSites();
+                loadImageSites();
+                loadVideoSites();
+                loadResourceSites();
+                loadBlacklist();
+            } catch (error) {
+                console.error('加载配置失败:', error);
+                showError('加载配置失败');
+            }
+        }
+        
+        // 加载设置
+        function loadSettings() {
+            if (config.settings) {
+                document.getElementById('engine-max-results').value = config.settings.engine_max_results || 35;
+                document.getElementById('site-timeout').value = config.settings.site_timeout || 8;
+            }
+        }
+        
+        // 更新概览
+        function updateOverview() {
+            const webCount = countSites('web_sites');
+            const imageCount = countSites('image_sites');
+            const videoCount = countSites('video_sites');
+            const resourceCount = countSites('resource_sites');
+            const blacklistCount = config.blacklist?.domains?.length || 0;
+            
+            document.getElementById('web-count').textContent = webCount;
+            document.getElementById('image-count').textContent = imageCount;
+            document.getElementById('video-count').textContent = videoCount;
+            document.getElementById('resource-count').textContent = resourceCount;
+            document.getElementById('blacklist-count').textContent = blacklistCount;
+        }
+        
+        // 计算网站数量
+        function countSites(siteType) {
+            if (!config[siteType]) return 0;
+            let count = 0;
+            for (const category in config[siteType]) {
+                if (config[siteType][category].domains) {
+                    count += config[siteType][category].domains.length;
+                }
+            }
+            return count;
+        }
+        
+        // 加载标签页数据
+        function loadTabData(tabName) {
+            switch(tabName) {
+                case 'web':
+                    loadWebSites();
+                    break;
+                case 'images':
+                    loadImageSites();
+                    break;
+                case 'videos':
+                    loadVideoSites();
+                    break;
+                case 'resources':
+                    loadResourceSites();
+                    break;
+                case 'blacklist':
+                    loadBlacklist();
+                    break;
+            }
+        }
+        
+        // 加载网页网站
+        function loadWebSites() {
+            const container = document.getElementById('web-sites');
+            container.innerHTML = '';
+            
+            if (!config.web_sites) {
+                container.innerHTML = '<div class="loading">暂无网页网站</div>';
+                return;
+            }
+            
+            for (const [category, data] of Object.entries(config.web_sites)) {
+                if (data.domains) {
+                    data.domains.forEach(domain => {
+                        // 检查域名是否有独立状态，否则使用分类默认状态
+                        const domainStatus = data.domain_status && data.domain_status[domain] !== undefined 
+                            ? data.domain_status[domain] 
+                            : data.enabled;
+                        console.log(`域名 ${domain} 状态:`, domainStatus, 'domain_status:', data.domain_status);
+                        const item = createSiteItem(domain, category, domainStatus, 'web');
+                        container.appendChild(item);
+                    });
+                }
+            }
+        }
+        
+        // 加载图片网站
+        function loadImageSites() {
+            const container = document.getElementById('image-sites');
+            container.innerHTML = '';
+            
+            if (!config.image_sites) {
+                container.innerHTML = '<div class="loading">暂无图片网站</div>';
+                return;
+            }
+            
+            for (const [category, data] of Object.entries(config.image_sites)) {
+                if (data.domains) {
+                    data.domains.forEach(domain => {
+                        // 检查域名是否有独立状态，否则使用分类默认状态
+                        const domainStatus = data.domain_status && data.domain_status[domain] !== undefined 
+                            ? data.domain_status[domain] 
+                            : data.enabled;
+                        const item = createSiteItem(domain, category, domainStatus, 'images');
+                        container.appendChild(item);
+                    });
+                }
+            }
+        }
+        
+        // 加载视频网站
+        function loadVideoSites() {
+            const container = document.getElementById('video-sites');
+            container.innerHTML = '';
+            
+            if (!config.video_sites) {
+                container.innerHTML = '<div class="loading">暂无视频网站</div>';
+                return;
+            }
+            
+            for (const [category, data] of Object.entries(config.video_sites)) {
+                if (data.domains) {
+                    data.domains.forEach(domain => {
+                        // 检查域名是否有独立状态，否则使用分类默认状态
+                        const domainStatus = data.domain_status && data.domain_status[domain] !== undefined 
+                            ? data.domain_status[domain] 
+                            : data.enabled;
+                        const item = createSiteItem(domain, category, domainStatus, 'videos');
+                        container.appendChild(item);
+                    });
+                }
+            }
+        }
+        
+        // 加载资源网站
+        function loadResourceSites() {
+            const container = document.getElementById('resource-sites');
+            container.innerHTML = '';
+            
+            if (!config.resource_sites) {
+                container.innerHTML = '<div class="loading">暂无资源网站</div>';
+                return;
+            }
+            
+            for (const [category, data] of Object.entries(config.resource_sites)) {
+                if (data.domains) {
+                    data.domains.forEach(domain => {
+                        // 检查域名是否有独立状态，否则使用分类默认状态
+                        const domainStatus = data.domain_status && data.domain_status[domain] !== undefined 
+                            ? data.domain_status[domain] 
+                            : data.enabled;
+                        const item = createSiteItem(domain, category, domainStatus, 'resources');
+                        container.appendChild(item);
+                    });
+                }
+            }
+        }
+        
+        // 加载黑名单
+        function loadBlacklist() {
+            const container = document.getElementById('blacklist-sites');
+            container.innerHTML = '';
+            
+            if (!config.blacklist?.domains?.length) {
+                container.innerHTML = '<div class="loading">暂无黑名单</div>';
+                return;
+            }
+            
+            config.blacklist.domains.forEach(domain => {
+                const item = document.createElement('div');
+                item.className = 'blacklist-item';
+                item.innerHTML = `
+                    <div class="site-info">
+                        <div class="site-domain">${domain}</div>
+                    </div>
+                    <div class="site-actions">
+                        <button class="btn btn-danger" onclick="removeFromBlacklist('${domain}')">移除</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+        
+        // 创建网站项目
+        function createSiteItem(domain, category, enabled, siteType) {
+            const item = document.createElement('div');
+            item.className = 'site-item';
+            item.innerHTML = `
+                <div class="site-info">
+                    <div class="site-domain">${domain}</div>
+                    <div class="site-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="www-prefix-${domain.replace(/\./g, '-')}" onchange="toggleWwwPrefix('${domain}', '${siteType}')">
+                            <span>访问时添加www前缀</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="site-actions">
+                    <button class="btn btn-info" onclick="visitSite('${domain}')">访问</button>
+                    <button class="btn btn-primary" onclick="editSite('${domain}', '${siteType}')">修改</button>
+                    <button class="btn btn-warning" onclick="addToBlacklist('${domain}')">添加至黑名单</button>
+                    <button class="btn ${enabled ? 'btn-warning' : 'btn-success'}" onclick="toggleSite('${domain}', '${siteType}', ${!enabled})">
+                        ${enabled ? '禁用' : '启用'}
+                    </button>
+                    <button class="btn btn-danger" onclick="removeSite('${domain}', '${siteType}')">删除</button>
+                </div>
+            `;
+            return item;
+        }
+        
+        // 添加网页网站
+        async function addWebSite() {
+            const domain = document.getElementById('web-domain').value.trim();
+            const category = 'custom';
+            const searchUrls = document.getElementById('web-search-urls').value.trim();
+            
+            if (!domain) {
+                showError('请输入域名');
+                return;
+            }
+            
+            const searchUrlList = searchUrls ? searchUrls.split(',').map(url => url.trim()).filter(url => url) : [];
+            
+            try {
+                const response = await fetch('/api/config/add-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain, siteType: 'web', searchUrls: searchUrlList
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        if (result.action === 'added') {
+                            showSuccess(result.message);
+                        } else if (result.action === 'updated') {
+                            showSuccess(result.message);
+                        }
+                        await loadConfig();
+                        loadWebSites();
+                        clearForm('web');
+                        document.getElementById('web-search-urls').value = '';
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('添加失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 添加图片网站
+        async function addImageSite() {
+            const domain = document.getElementById('image-domain').value.trim();
+            const category = 'custom';
+            const searchUrls = document.getElementById('image-search-urls').value.trim();
+            
+            if (!domain) {
+                showError('请输入域名');
+                return;
+            }
+            
+            const searchUrlList = searchUrls ? searchUrls.split(',').map(url => url.trim()).filter(url => url) : [];
+            
+            try {
+                const response = await fetch('/api/config/add-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain, siteType: 'images', searchUrls: searchUrlList
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        if (result.action === 'added') {
+                            showSuccess(result.message);
+                        } else if (result.action === 'updated') {
+                            showSuccess(result.message);
+                        }
+                        await loadConfig();
+                        loadImageSites();
+                        clearForm('image');
+                        document.getElementById('image-search-urls').value = '';
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('添加失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 添加视频网站
+        async function addVideoSite() {
+            const domain = document.getElementById('video-domain').value.trim();
+            const category = 'custom';
+            const searchUrls = document.getElementById('video-search-urls').value.trim();
+            
+            if (!domain) {
+                showError('请输入域名');
+                return;
+            }
+            
+            const searchUrlList = searchUrls ? searchUrls.split(',').map(url => url.trim()).filter(url => url) : [];
+            
+            try {
+                const response = await fetch('/api/config/add-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain, siteType: 'videos', searchUrls: searchUrlList
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        if (result.action === 'added') {
+                            showSuccess(result.message);
+                        } else if (result.action === 'updated') {
+                            showSuccess(result.message);
+                        }
+                        await loadConfig();
+                        loadVideoSites();
+                        clearForm('video');
+                        document.getElementById('video-search-urls').value = '';
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('添加失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 添加资源网站
+        async function addResourceSite() {
+            const domain = document.getElementById('resource-domain').value.trim();
+            const category = 'custom';
+            const searchUrls = document.getElementById('resource-search-urls').value.trim();
+            
+            if (!domain) {
+                showError('请输入域名');
+                return;
+            }
+            
+            const searchUrlList = searchUrls ? searchUrls.split(',').map(url => url.trim()) : [];
+            
+            try {
+                const response = await fetch('/api/config/add-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain, siteType: 'resources', searchUrls: searchUrlList
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        if (result.action === 'added') {
+                            showSuccess(result.message);
+                        } else if (result.action === 'updated') {
+                            showSuccess(result.message);
+                        }
+                        await loadConfig();
+                        loadResourceSites();
+                        clearForm('resource');
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('添加失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 添加到黑名单
+        async function addToBlacklistManual() {
+            const domain = document.getElementById('blacklist-domain').value.trim();
+            
+            if (!domain) {
+                showError('请输入域名');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/config/blacklist', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain, action: 'add'})
+                });
+                
+                if (response.ok) {
+                    showSuccess('添加成功');
+                    await loadConfig();
+                    loadBlacklist();
+                    document.getElementById('blacklist-domain').value = '';
+                } else {
+                    showError('添加失败');
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 切换网站状态
+        async function toggleSite(domain, siteType, enabled) {
+            try {
+                console.log('切换网站状态:', {domain, siteType, enabled});
+                const response = await fetch('/api/config/toggle-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain, siteType, enabled})
+                });
+                
+                if (response.ok) {
+                    showSuccess('状态更新成功');
+                    // 重新加载配置并更新界面
+                    await loadConfig();
+                    console.log('重新加载后的config:', config);
+                    console.log('web_sites domain_status:', config.web_sites?.custom?.domain_status);
+                    const currentTab = document.querySelector('.tab.active');
+                    if (currentTab) {
+                        const tabName = currentTab.getAttribute('data-tab');
+                        console.log('重新加载标签:', tabName);
+                        loadTabData(tabName);
+                    }
+                } else {
+                    const errorData = await response.json();
+                    console.error('更新失败:', errorData);
+                    showError('更新失败: ' + (errorData.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('更新失败');
+            }
+        }
+        
+        // 删除网站
+        async function removeSite(domain, siteType) {
+            if (!confirm(`确定要删除 ${domain} 吗？`)) return;
+            
+            try {
+                const response = await fetch('/api/config/remove-site', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain, siteType})
+                });
+                
+                if (response.ok) {
+                    showSuccess('删除成功');
+                    // 重新加载配置并更新界面
+                    await loadConfig();
+                    const currentTab = document.querySelector('.tab.active');
+                    if (currentTab) {
+                        const tabName = currentTab.getAttribute('data-tab');
+                        loadTabData(tabName);
+                    }
+                } else {
+                    showError('删除失败');
+                }
+            } catch (error) {
+                showError('删除失败');
+            }
+        }
+        
+        // 从黑名单移除
+        async function removeFromBlacklist(domain) {
+            if (!confirm(`确定要从黑名单移除 ${domain} 吗？`)) return;
+            
+            try {
+                const response = await fetch('/api/config/blacklist', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({domain, action: 'remove'})
+                });
+                
+                if (response.ok) {
+                    showSuccess('移除成功');
+                    await loadConfig();
+                    loadBlacklist();
+                } else {
+                    showError('移除失败');
+                }
+            } catch (error) {
+                showError('移除失败');
+            }
+        }
+        
+        // 保存设置
+        async function saveSettings() {
+            const engineMaxResults = parseInt(document.getElementById('engine-max-results').value);
+            const siteTimeout = parseInt(document.getElementById('site-timeout').value);
+            
+            try {
+                const response = await fetch('/api/config/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        engineMaxResults,
+                        siteTimeout
+                    })
+                });
+                
+                if (response.ok) {
+                    showSuccess('设置保存成功');
+                    loadConfig();
+                } else {
+                    showError('保存失败');
+                }
+            } catch (error) {
+                showError('保存失败');
+            }
+        }
+        
+        // 刷新数据
+        async function refreshData() {
+            await loadConfig();
+            showSuccess('数据已刷新');
+        }
+        
+        // 导出配置
+        function exportConfig() {
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'sites_config.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // 导入配置
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedConfig = JSON.parse(e.target.result);
+                            // 这里可以添加入口配置的逻辑
+                            showSuccess('配置导入成功');
+                        } catch (error) {
+                            showError('配置文件格式错误');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+        
+        // 重置配置
+        function resetConfig() {
+            if (!confirm('确定要重置所有配置吗？这将删除所有自定义设置。')) return;
+            
+            // 这里可以添加重置配置的逻辑
+            showSuccess('配置已重置');
+        }
+
+
+        
+        // 清空表单
+        function clearForm(type) {
+            const prefix = type === 'web' ? 'web' : type === 'image' ? 'image' : type === 'video' ? 'video' : 'resource';
+            document.getElementById(`${prefix}-domain`).value = '';
+            if (type === 'resource') {
+                document.getElementById('resource-search-urls').value = '';
+            }
+        }
+        
+        // 显示Toast提示
+        function showToast(message, type = 'info') {
+            // 移除现有的toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // 显示动画
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // 自动隐藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // 搜索URL管理功能
+        let currentSearchUrls = {};
+
+        async function loadSearchUrls() {
+            const siteType = document.getElementById('search-url-site-type').value;
+            const container = document.getElementById('search-urls-container');
+            const list = document.getElementById('search-urls-list');
+            
+            try {
+                const response = await fetch(`/api/config/search-urls/${siteType}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentSearchUrls = data;
+                    displaySearchUrls(data);
+                    container.style.display = 'block';
+                } else {
+                    showToast('加载配置失败: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('加载配置失败: ' + error.message, 'error');
+            }
+        }
+
+        function displaySearchUrls(searchUrls) {
+            const list = document.getElementById('search-urls-list');
+            list.innerHTML = '';
+            
+            if (Object.keys(searchUrls).length === 0) {
+                list.innerHTML = '<p style="color: #888;">暂无搜索URL配置</p>';
+                return;
+            }
+            
+            for (const [domain, urls] of Object.entries(searchUrls)) {
+                const domainDiv = document.createElement('div');
+                domainDiv.style.marginBottom = '15px';
+                domainDiv.style.padding = '10px';
+                domainDiv.style.border = '1px solid #2a3442';
+                domainDiv.style.borderRadius = '5px';
+                domainDiv.style.backgroundColor = 'var(--card)';
+                
+                domainDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="color: var(--txt);">${domain}</strong>
+                        <button class="btn btn-danger" onclick="removeDomain('${domain}')" style="padding: 2px 8px; font-size: 12px;">删除</button>
+                    </div>
+                    <div id="urls-${domain.replace(/\./g, '-')}">
+                        ${urls.map((url, index) => `
+                            <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                                <input type="text" value="${url}" onchange="updateUrl('${domain}', ${index}, this.value)" style="flex: 1; padding: 5px; background: var(--bg); color: var(--txt); border: 1px solid #2a3442; border-radius: 3px;">
+                                <button class="btn btn-danger" onclick="removeUrl('${domain}', ${index})" style="padding: 2px 6px; font-size: 12px;">删除</button>
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-primary" onclick="addUrl('${domain}')" style="padding: 2px 8px; font-size: 12px;">添加URL</button>
+                    </div>
+                `;
+                
+                list.appendChild(domainDiv);
+            }
+        }
+
+        function updateUrl(domain, index, newUrl) {
+            if (currentSearchUrls[domain]) {
+                currentSearchUrls[domain][index] = newUrl;
+            }
+        }
+
+        function removeUrl(domain, index) {
+            if (currentSearchUrls[domain]) {
+                currentSearchUrls[domain].splice(index, 1);
+                displaySearchUrls(currentSearchUrls);
+            }
+        }
+
+        function addUrl(domain) {
+            if (!currentSearchUrls[domain]) {
+                currentSearchUrls[domain] = [];
+            }
+            currentSearchUrls[domain].push('https://' + domain + '/search?q={query}');
+            displaySearchUrls(currentSearchUrls);
+        }
+
+        function removeDomain(domain) {
+            delete currentSearchUrls[domain];
+            displaySearchUrls(currentSearchUrls);
+        }
+
+        async function saveSearchUrls() {
+            const siteType = document.getElementById('search-url-site-type').value;
+            
+            try {
+                const response = await fetch(`/api/config/search-urls/${siteType}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({searchUrls: currentSearchUrls})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('搜索URL配置保存成功', 'success');
+                } else {
+                    showToast('保存失败: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('保存失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            showToast(message, 'error');
+        }
+        
+        // 显示成功信息
+        function showSuccess(message) {
+            showToast(message, 'success');
+        }
+        
+        // 访问网站
+        function visitSite(domain) {
+            // 检查是否需要添加www前缀
+            const checkbox = document.getElementById(`www-prefix-${domain.replace(/\./g, '-')}`);
+            const useWww = checkbox ? checkbox.checked : false;
+            
+            let actualDomain = domain;
+            if (useWww && !domain.startsWith('www.')) {
+                actualDomain = `www.${domain}`;
+            }
+            
+            const url = actualDomain.startsWith('http') ? actualDomain : `https://${actualDomain}`;
+            window.open(url, '_blank');
+        }
+        
+        // 切换www前缀设置（仅前端，不保存）
+        function toggleWwwPrefix(domain, siteType) {
+            // 这里不需要做任何处理，只是让用户知道设置已改变
+            console.log(`切换 ${domain} 的www前缀设置`);
+        }
+        
+        // 编辑网站
+        async function editSite(domain, siteType) {
+            console.log(`开始编辑网站: ${domain}, 类型: ${siteType}`);
+            
+            // 获取当前网站的搜索URL
+            const currentUrls = await getCurrentSearchUrls(domain, siteType);
+            console.log(`获取到的URL:`, currentUrls);
+            
+            // 创建编辑对话框
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>编辑网站: ${domain}</h3>
+                        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>域名</label>
+                            <input type="text" id="edit-domain" value="${domain}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>搜索URL模板（每行一个）</label>
+                            <textarea id="edit-search-urls" rows="5" placeholder="例如: https://example.com/search?q={query}">${currentUrls.join('\n')}</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" onclick="saveEditSite('${siteType}')">保存</button>
+                        <button class="btn btn-secondary" onclick="closeEditModal()">取消</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // 获取当前网站的搜索URL
+        async function getCurrentSearchUrls(domain, siteType) {
+            try {
+                const response = await fetch(`/api/config/sites/${siteType}/urls/${encodeURIComponent(domain)}`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log(`获取到 ${domain} 的搜索URL:`, data.searchUrls);
+                    return data.searchUrls || [];
+                } else {
+                    console.warn('获取搜索URL失败:', data.error);
+                    return [];
+                }
+            } catch (error) {
+                console.warn('获取搜索URL失败:', error);
+                return [];
+            }
+        }
+        
+        // 关闭编辑对话框
+        function closeEditModal() {
+            const modal = document.querySelector('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 保存编辑的网站
+        async function saveEditSite(siteType) {
+            const domain = document.getElementById('edit-domain').value.trim();
+            const searchUrlsText = document.getElementById('edit-search-urls').value.trim();
+            
+            if (!domain) {
+                showToast('域名不能为空', 'error');
+                return;
+            }
+            
+            // 解析搜索URL
+            const searchUrls = searchUrlsText.split('\n')
+                .map(url => url.trim())
+                .filter(url => url.length > 0);
+            
+            try {
+                const response = await fetch(`/api/config/sites/${siteType}/edit`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain: domain,
+                        searchUrls: searchUrls
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showToast('网站编辑成功', 'success');
+                    closeEditModal();
+                    loadSites(); // 重新加载网站列表
+                } else {
+                    showToast('编辑失败: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('编辑失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 添加至黑名单
+        async function addToBlacklist(domain) {
+            if (confirm(`确定要将 ${domain} 添加到黑名单吗？`)) {
+                try {
+                    const response = await fetch('/api/config/blacklist', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({domain: domain, action: 'add'})
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showToast(`已将 ${domain} 添加到黑名单`, 'success');
+                        loadSites(); // 重新加载网站列表
+                    } else {
+                        showToast('添加失败: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    showToast('添加失败: ' + error.message, 'error');
+                }
+            }
+        }
+        
+        // URL解析函数
+        function parseUrl(url, domainId, searchUrlsId) {
+            try {
+                const urlObj = new URL(url);
+                const domain = urlObj.hostname;
+                
+                // 设置域名
+                document.getElementById(domainId).value = domain;
+                
+                // 解析搜索参数，将查询参数替换为{query}
+                let searchUrl = urlObj.origin + urlObj.pathname;
+                const params = new URLSearchParams(urlObj.search);
+                
+                // 常见的搜索参数名
+                const searchParams = ['q', 'query', 'keyword', 'search', 'wd', 'w', 'k', 'term', 'text'];
+                let hasSearchParam = false;
+                
+                for (const [key, value] of params.entries()) {
+                    if (searchParams.includes(key.toLowerCase())) {
+                        searchUrl += (searchUrl.includes('?') ? '&' : '?') + key + '={query}';
+                        hasSearchParam = true;
+                    } else {
+                        searchUrl += (searchUrl.includes('?') ? '&' : '?') + key + '=' + value;
+                    }
+                }
+                
+                // 如果没有找到搜索参数，尝试从路径中提取
+                if (!hasSearchParam) {
+                    const pathParts = urlObj.pathname.split('/');
+                    for (let i = 0; i < pathParts.length; i++) {
+                        if (searchParams.includes(pathParts[i].toLowerCase())) {
+                            pathParts[i] = '{query}';
+                            searchUrl = urlObj.origin + pathParts.join('/');
+                            if (urlObj.search) {
+                                searchUrl += urlObj.search;
+                            }
+                            break;
+                        }
+                    }
+                }
+                
+                // 设置搜索URL
+                document.getElementById(searchUrlsId).value = searchUrl;
+                
+                showToast('链接解析成功！', 'success');
+            } catch (error) {
+                showToast('链接解析失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 网页搜索URL解析
+        function parseWebUrl() {
+            const url = document.getElementById('web-copy-url').value.trim();
+            if (!url) {
+                showToast('请输入搜索链接', 'error');
+                return;
+            }
+            parseUrl(url, 'web-domain', 'web-search-urls');
+        }
+        
+        // 图片搜索URL解析
+        function parseImageUrl() {
+            const url = document.getElementById('image-copy-url').value.trim();
+            if (!url) {
+                showToast('请输入搜索链接', 'error');
+                return;
+            }
+            parseUrl(url, 'image-domain', 'image-search-urls');
+        }
+        
+        // 视频搜索URL解析
+        function parseVideoUrl() {
+            const url = document.getElementById('video-copy-url').value.trim();
+            if (!url) {
+                showToast('请输入搜索链接', 'error');
+                return;
+            }
+            parseUrl(url, 'video-domain', 'video-search-urls');
+        }
+        
+        // 资源搜索URL解析
+        function parseResourceUrl() {
+            const url = document.getElementById('resource-copy-url').value.trim();
+            if (!url) {
+                showToast('请输入搜索链接', 'error');
+                return;
+            }
+            parseUrl(url, 'resource-domain', 'resource-search-urls');
+        }
+    </script>
+</body>
+</html>

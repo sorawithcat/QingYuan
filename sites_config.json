@@ -1,0 +1,149 @@
+{
+  "search_engines": {
+    "baidu": {
+      "name": "百度",
+      "base_url": "https://www.baidu.com",
+      "search_paths": {
+        "web": "/s",
+        "images": "/s?wd={query}&t=image",
+        "videos": "/s?wd={query}&t=video"
+      },
+      "enabled": true
+    },
+    "bing": {
+      "name": "Bing",
+      "base_url": "https://www.bing.com",
+      "search_paths": {
+        "web": "/search",
+        "images": "/images/search",
+        "videos": "/videos/search"
+      },
+      "enabled": true
+    },
+    "sogou": {
+      "name": "搜狗",
+      "base_url": "https://www.sogou.com",
+      "search_paths": {
+        "web": "/web",
+        "images": "/images",
+        "videos": "/video"
+      },
+      "enabled": true
+    }
+  },
+  "web_sites": {
+    "custom": {
+      "domains": [
+        "baidu.com",
+        "bing.com",
+        "sogou.com"
+      ],
+      "search_urls": {
+        "baidu.com": [
+          "https://www.baidu.com/s?wd={query}",
+          "https://www.baidu.com/s?wd={query}&pn=10",
+          "https://www.baidu.com/s?wd={query}&pn=20"
+        ],
+        "sogou.com": [
+          "https://sogou.com/web?query={query}&_asf=www.sogou.com&_ast=&w=01019900&p=40040100&ie=utf8&from=index-nologin&s_from=index&sourceid=9_01_03",
+          "https://sogou.com/web?query={query}&_asf=www.sogou.com&_ast=&w=01019900&p=40040101&ie=utf8&from=index-nologin&s_from=index&sourceid=9_01_03",
+          "https://sogou.com/web?query={query}&_asf=www.sogou.com&_ast=&w=01019900&p=40040102&ie=utf8&from=index-nologin&s_from=index&sourceid=9_01_03"
+        ],
+        "bing.com": [
+          "https://www.bing.com/search?q={query}",
+          "https://www.bing.com/search?q={query}&first=11",
+          "https://www.bing.com/search?q={query}&first=21"
+        ]
+      },
+      "enabled": true,
+      "domain_status": {
+        "baidu.com": true,
+        "bing.com": true,
+        "sogou.com": true
+      }
+    }
+  },
+  "resource_sites": {
+    "custom": {
+      "domains": [
+        "bbs.3dmgame.com",
+        "ggbases.dlgal.com",
+        "gugu3.com",
+        "linovelib.com",
+        "www.gamer520.com",
+        "inarigal.com",
+        "www.flysheep6.com"
+      ],
+      "search_urls": {
+        "bbs.3dmgame.com": [
+          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}",
+          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}&srchtype=title"
+        ],
+        "ggbases.dlgal.com": [
+          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=0",
+          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=1"
+        ],
+        "gugu3.com": [
+          "https://www.gugu3.com/search?q={query}",
+          "https://www.gugu3.com/"
+        ],
+        "linovelib.com": [
+          "https://www.linovelib.com/search?keyword={query}",
+          "https://www.linovelib.com/"
+        ],
+        "www.gamer520.com": [
+          "https://www.gamer520.com/?s={query}"
+        ],
+        "inarigal.com": [
+          "https://inarigal.com/?search={query}"
+        ],
+        "www.flysheep6.com": [
+          "https://www.flysheep6.com/?s={query}"
+        ]
+      },
+      "enabled": true,
+      "domain_status": {
+        "bbs.3dmgame.com": true,
+        "www.gamer520.com": true,
+        "inarigal.com": true,
+        "www.flysheep6.com": true
+      }
+    }
+  },
+  "video_sites": {
+    "custom": {
+      "domains": [
+        "bilibili.com"
+      ],
+      "enabled": true,
+      "domain_status": {
+        "bilibili.com": true
+      },
+      "search_urls": {
+        "bilibili.com": [
+          "https://search.bilibili.com/video?keyword={query}",
+          "https://search.bilibili.com/video?keyword={query}&order=totalrank&duration=0&tids_1=0"
+        ]
+      }
+    }
+  },
+  "image_sites": {
+    "custom": {
+      "domains": [],
+      "enabled": true,
+      "domain_status": {},
+      "search_urls": {}
+    }
+  },
+  "blacklist": {
+    "domains": [
+      "microsoft.com",
+      "microsofttranslator.com"
+    ],
+    "enabled": true
+  },
+  "settings": {
+    "engine_max_results": 35,
+    "site_timeout": 8
+  }
+}

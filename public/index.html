@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>清源·搜索</title>
+<style>
+:root{
+  --bg:#0b0f14;
+  --card:#121821;
+  --txt:#e6edf3;
+  --muted:#9fb3c8;
+  --pri:#5aa9ff;
+  --accent:#7c4dff;
+  --base-size: 1rem;
+  --scale-mobile: 0.875;
+  --scale-tablet: 0.9375;
+  --scale-desktop: 1;
+}
+
+*{box-sizing:border-box}
+
+html{
+  font-size: 16px;
+}
+
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b0f14,#0e141b);
+  color:var(--txt);
+  font:var(--base-size)/1.55 system-ui,Segoe UI,Roboto,Helvetica,Arial;
+  position:relative;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* 背景大字体 */
+.bg-text{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:11.25rem;
+  font-weight:900;
+  color:transparent;
+  z-index:1;
+  pointer-events:none;
+  user-select:none;
+  letter-spacing:2.1875rem;
+  opacity:0.4;
+  -webkit-text-stroke:2px rgba(135,206,235,0.3);
+  text-shadow:0 0 10px rgba(135,206,235,0.1);
+}
+
+.container{
+  width:100%;
+  height:100vh;
+  margin:0;
+  padding:1.25rem;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:1rem;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+}
+
+.brand-name{
+  font-weight:700;
+  letter-spacing:0.0625rem;
+}
+
+.card{
+  background:rgba(18,24,33,0.8);
+  border:1px solid #1e2630;
+  border-radius:0.875rem;
+  padding:1rem;
+  box-shadow:0 0.5rem 1.5rem rgba(0,0,0,.25);
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  position:relative;
+  backdrop-filter:blur(2px);
+}
+
+.row{
+  display:flex;
+  gap:0.625rem;
+  flex-wrap:wrap;
+  margin:0.625rem 0;
+}
+
+.input{
+  flex:1;
+  min-width:16.25rem;
+}
+
+.input input{
+  width:100%;
+  height:2.75rem;
+  border-radius:0.625rem;
+  border:1px solid #2a3442;
+  background:#0f151d;
+  color:var(--txt);
+  padding:0 0.75rem;
+  outline:none;
+  font-size:var(--base-size);
+}
+
+.btn{
+  height:2.75rem;
+  padding:0 1rem;
+  background:var(--card);
+  color:var(--txt);
+  border:1px solid #2a3442;
+  border-radius:0.5rem;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:none;
+  font-size:var(--base-size);
+}
+
+.btn:hover{
+  filter:brightness(1.05);
+}
+
+.results{
+  margin-top:1rem;
+  flex:1;
+  overflow-y:auto;
+  min-height:0;
+}
+
+.result{
+  padding:0.75rem 0.875rem;
+  border-bottom:1px solid #1e2630;
+}
+
+.result a{
+  color:var(--pri);
+  text-decoration:none;
+  font-size:var(--base-size);
+  display:block;
+  word-break:break-all;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  -webkit-box-orient:vertical;
+  line-height:1.4;
+  max-height:2.8em;
+}
+
+.result a:hover{
+  text-decoration:underline;
+}
+
+.small{
+  color:var(--muted);
+  font-size:0.75rem;
+  word-break:break-all;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  -webkit-box-orient:vertical;
+  line-height:1.4;
+  max-height:2.8em;
+  margin-top:0.25rem;
+}
+
+.badge{
+  font-size:0.75rem;
+  color:#cdd9e5;
+  background:#16202a;
+  border:1px solid #2a3442;
+  padding:0.125rem 0.5rem;
+  border-radius:999px;
+}
+
+.pager{
+  display:flex;
+  align-items:center;
+  gap:0.625rem;
+  margin-top:0.625rem;
+}
+
+.pager button{
+  height:2.125rem;
+  padding:0 0.75rem;
+  border-radius:0.5rem;
+  border:1px solid #2a3442;
+  background:#0f151d;
+  color:var(--txt);
+  cursor:pointer;
+  font-size:0.75rem;
+}
+
+.pager button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+#pagination{
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  margin-top:0.5rem;
+}
+
+#pagination button{
+  height:2rem;
+  padding:0 0.75rem;
+  border-radius:0.375rem;
+  border:1px solid #2a3442;
+  background:#0f151d;
+  color:var(--txt);
+  cursor:pointer;
+  font-size:0.75rem;
+}
+
+#pagination button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+#pageInfo{
+  color:var(--muted);
+  font-size:0.75rem;
+  margin:0 0.5rem;
+}
+
+.count{
+  color:var(--muted);
+  font-size:0.75rem;
+}
+
+.tag{
+  display:inline-block;
+  margin-left:0.5rem;
+  padding:0 0.375rem;
+  border:1px solid #2a3442;
+  border-radius:0.375rem;
+  background:#0f151d;
+  color:#9fb3c8;
+  font-size:0.6875rem;
+}
+
+select{
+  height:2.75rem;
+  border-radius:0.625rem;
+  border:1px solid #2a3442;
+  background:#0f151d;
+  color:var(--txt);
+  padding:0 0.625rem;
+  font-size:var(--base-size);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(11.25rem,1fr));
+  gap:0.625rem;
+}
+
+.grid.masonry{
+  display:block;
+  column-width:13.75rem;
+  column-gap:0.625rem;
+}
+
+.masonry .tile{
+  display:inline-block;
+  width:100%;
+  margin:0 0 0.625rem;
+  break-inside:avoid;
+}
+
+.tile{
+  background:#0f151d;
+  border:1px solid #2a3442;
+  border-radius:0.625rem;
+  overflow:hidden;
+}
+
+.tile img{
+  width:100%;
+  display:block;
+}
+
+.tile .t{
+  padding:0.5rem;
+  font-size:0.75rem;
+  color:#9fb3c8;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#backTop{
+  position:fixed;
+  right:1.125rem;
+  bottom:1.125rem;
+  height:2.375rem;
+  padding:0 0.75rem;
+  border-radius:0.5625rem;
+  border:1px solid #2a3442;
+  background:#0f151d;
+  color:var(--txt);
+  cursor:pointer;
+  display:none;
+  z-index:999;
+  font-size:0.75rem;
+}
+/* .floating 外观 */
+.floating-bar{
+  position:sticky;
+  top:0.5rem;
+  z-index:1000;
+  background:rgba(15,21,29,.72);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid #2a3442;
+  border-radius:0.75rem;
+  padding:0.625rem;
+}
+
+.floating-panel{
+  background:rgba(18,24,33,.6);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border:1px solid #1e2630;
+  border-radius:0.75rem;
+  padding:0.375rem;
+  box-shadow:0 0.375rem 1.125rem rgba(0,0,0,.25);
+  flex:1;
+  overflow-y:auto;
+  min-height:0;
+}
+
+/* 右键菜单 */
+#ctxMenu{
+  position:fixed;
+  left:0;
+  top:0;
+  display:none;
+  z-index:3000;
+  min-width:10rem;
+  background:rgba(18,24,33,.95);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border:1px solid #2a3442;
+  border-radius:0.625rem;
+  box-shadow:0 0.625rem 1.5rem rgba(0,0,0,.35);
+}
+
+#ctxMenu .item{
+  padding:0.625rem 0.875rem;
+  color:#cdd9e5;
+  cursor:pointer;
+  user-select:none;
+  white-space:nowrap;
+  font-size:0.875rem;
+}
+
+#ctxMenu .item:hover{
+  background:#16202a;
+}
+/* 水的主题滚动条样式 */
+.results::-webkit-scrollbar{
+  width:0.5rem;
+}
+
+.results::-webkit-scrollbar-track{
+  background:rgba(18,24,33,0.3);
+  border-radius:0.25rem;
+}
+
+.results::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,rgba(135,206,235,0.4),rgba(135,206,235,0.2));
+  border-radius:0.25rem;
+  border:1px solid rgba(135,206,235,0.1);
+}
+
+.results::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,rgba(135,206,235,0.6),rgba(135,206,235,0.4));
+}
+
+.floating-panel::-webkit-scrollbar{
+  width:0.5rem;
+}
+
+.floating-panel::-webkit-scrollbar-track{
+  background:rgba(18,24,33,0.3);
+  border-radius:0.25rem;
+}
+
+.floating-panel::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,rgba(135,206,235,0.4),rgba(135,206,235,0.2));
+  border-radius:0.25rem;
+  border:1px solid rgba(135,206,235,0.1);
+}
+
+.floating-panel::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,rgba(135,206,235,0.6),rgba(135,206,235,0.4));
+}
+
+@keyframes spin{
+  0%{transform:rotate(0deg)}
+  100%{transform:rotate(360deg)}
+}
+
+/* 自适应样式 - 使用rem单位 */
+@media (max-width: 768px) {
+  html{font-size: 14px;}
+  
+  .container{padding:0.625rem}
+  .card{padding:0.75rem}
+  .floating-bar{padding:0.5rem}
+  .row{gap:0.5rem;flex-direction:column}
+  .input{min-width:auto}
+  .input input{height:2.5rem;font-size:0.875rem}
+  .btn{height:2.5rem;padding:0 0.75rem;font-size:0.875rem}
+  select{height:2.5rem;font-size:0.875rem}
+  .bg-text{font-size:7.5rem;letter-spacing:1.25rem}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(9.375rem,1fr));gap:0.5rem}
+  .grid.masonry{column-width:11.25rem;column-gap:0.5rem}
+  .tile{border-radius:0.5rem}
+  .tile .t{padding:0.375rem;font-size:0.6875rem}
+  .result{padding:0.625rem 0.75rem}
+  .result a{font-size:0.875rem}
+  .small{font-size:0.6875rem}
+  .pager button{height:2rem;padding:0 0.625rem;font-size:0.75rem}
+  #backTop{right:0.75rem;bottom:0.75rem;height:2.25rem;padding:0 0.625rem;font-size:0.75rem}
+  #ctxMenu{min-width:8.75rem}
+  #ctxMenu .item{padding:0.5rem 0.75rem;font-size:0.8125rem}
+}
+
+@media (max-width: 480px) {
+  html{font-size: 13px;}
+  
+  .container{padding:0.5rem}
+  .card{padding:0.625rem}
+  .floating-bar{padding:0.375rem}
+  .row{gap:0.375rem}
+  .input input{height:2.25rem;font-size:0.8125rem;padding:0 0.625rem}
+  .btn{height:2.25rem;padding:0 0.625rem;font-size:0.8125rem}
+  select{height:2.25rem;font-size:0.8125rem;padding:0 0.5rem}
+  .bg-text{font-size:5rem;letter-spacing:0.9375rem}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(7.5rem,1fr));gap:0.375rem}
+  .grid.masonry{column-width:9.375rem;column-gap:0.375rem}
+  .tile{border-radius:0.375rem}
+  .tile .t{padding:0.25rem;font-size:0.625rem}
+  .result{padding:0.5rem 0.625rem}
+  .result a{font-size:0.8125rem}
+  .small{font-size:0.625rem}
+  .pager button{height:1.875rem;padding:0 0.5rem;font-size:0.6875rem}
+  #backTop{right:0.5rem;bottom:0.5rem;height:2rem;padding:0 0.5rem;font-size:0.6875rem}
+  #ctxMenu{min-width:7.5rem}
+  #ctxMenu .item{padding:0.375rem 0.625rem;font-size:0.75rem}
+}
+
+@media (max-width: 360px) {
+  html{font-size: 12px;}
+  
+  .container{padding:0.375rem}
+  .card{padding:0.5rem}
+  .floating-bar{padding:0.25rem}
+  .row{gap:0.25rem}
+  .input input{height:2.125rem;font-size:0.75rem;padding:0 0.5rem}
+  .btn{height:2.125rem;padding:0 0.5rem;font-size:0.75rem}
+  select{height:2.125rem;font-size:0.75rem;padding:0 0.375rem}
+  .bg-text{font-size:3.75rem;letter-spacing:0.625rem}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(6.25rem,1fr));gap:0.25rem}
+  .grid.masonry{column-width:7.5rem;column-gap:0.25rem}
+  .tile{border-radius:0.25rem}
+  .tile .t{padding:0.1875rem;font-size:0.5625rem}
+  .result{padding:0.375rem 0.5rem}
+  .result a{font-size:0.75rem}
+  .small{font-size:0.5625rem}
+  .pager button{height:1.75rem;padding:0 0.375rem;font-size:0.625rem}
+  #backTop{right:0.375rem;bottom:0.375rem;height:1.75rem;padding:0 0.375rem;font-size:0.625rem}
+  #ctxMenu{min-width:6.25rem}
+  #ctxMenu .item{padding:0.25rem 0.5rem;font-size:0.6875rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="bg-text">清源</div>
+    <div class="row floating-bar">
+      <div class="input"><input id="q" type="text" placeholder="如果搜不出可以选择少词或准确的名字，例如千恋万花其实是千恋＊万花，你也可以选择搜索千恋" onkeydown="if(event.key==='Enter'){doSearch()}"></div>
+      <select id="stype">
+        <option value="web" selected>网页</option>
+        <option value="images">图片</option>
+        <option value="videos">视频</option>
+        <option value="files">资源</option>
+      </select>
+      <button class="btn" onclick="doSearch()">搜索</button>
+      <button class="btn" onclick="window.open('/admin', '_blank')">管理</button>
+    </div>
+    <div id="status" class="small"></div>
+    <div id="results" class="results floating-panel"></div>
+    <div class="pager">
+      <div class="count" id="count"></div>
+      <div class="small" id="appendStatus"></div>
+      <div id="pagination" style="display:none;">
+        <button id="prevPage" onclick="goToPage(-1)">上一页</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage" onclick="goToPage(1)">下一页</button>
+      </div>
+    </div>
+  </div>
+</div>
+<button id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">返回顶部</button>
+<script>
+var allResults=[]
+var isLoadingMore=false
+var lastLoadTs=0
+var pageByType={web:0,images:0,videos:0,files:0}
+
+// 自适应功能
+var isMobile = false
+var isTablet = false
+var isDesktop = true
+
+// 检测设备类型
+function detectDevice() {
+  const width = window.innerWidth
+  if (width <= 360) {
+    isMobile = true
+    isTablet = false
+    isDesktop = false
+    document.documentElement.style.fontSize = '12px'
+  } else if (width <= 768) {
+    isMobile = false
+    isTablet = true
+    isDesktop = false
+    document.documentElement.style.fontSize = '14px'
+  } else {
+    isMobile = false
+    isTablet = false
+    isDesktop = true
+    document.documentElement.style.fontSize = '16px'
+  }
+  
+  // 更新UI元素
+  updateUIForDevice()
+}
+
+// 根据设备类型更新UI
+function updateUIForDevice() {
+  const container = document.querySelector('.container')
+  const card = document.querySelector('.card')
+  const floatingBar = document.querySelector('.floating-bar')
+  
+  if (isMobile) {
+    // 移动端优化
+    if (container) container.classList.add('mobile')
+    if (card) card.classList.add('mobile')
+    if (floatingBar) floatingBar.classList.add('mobile')
+  } else if (isTablet) {
+    // 平板优化
+    if (container) container.classList.add('tablet')
+    if (card) card.classList.add('tablet')
+    if (floatingBar) floatingBar.classList.add('tablet')
+  } else {
+    // 桌面端
+    if (container) container.classList.remove('mobile', 'tablet')
+    if (card) card.classList.remove('mobile', 'tablet')
+    if (floatingBar) floatingBar.classList.remove('mobile', 'tablet')
+  }
+}
+
+// 触摸支持
+function addTouchSupport() {
+  const results = document.getElementById('results')
+  if (!results) return
+  
+  let startY = 0
+  let startX = 0
+  let isScrolling = false
+  
+  results.addEventListener('touchstart', function(e) {
+    startY = e.touches[0].clientY
+    startX = e.touches[0].clientX
+    isScrolling = false
+  }, { passive: true })
+  
+  results.addEventListener('touchmove', function(e) {
+    if (!isScrolling) {
+      const currentY = e.touches[0].clientY
+      const currentX = e.touches[0].clientX
+      const diffY = Math.abs(currentY - startY)
+      const diffX = Math.abs(currentX - startX)
+      
+      if (diffY > diffX) {
+        isScrolling = true
+      }
+    }
+  }, { passive: true })
+  
+  results.addEventListener('touchend', function(e) {
+    if (isScrolling) {
+      // 触底加载更多
+      setTimeout(maybeLoadMore, 100)
+    }
+  }, { passive: true })
+}
+
+// 动态调整图片网格
+function adjustImageGrid() {
+  const stype = document.getElementById('stype').value
+  if (stype !== 'images') return
+  
+  const grid = document.querySelector('.grid.masonry')
+  if (!grid) return
+  
+  if (isMobile) {
+    grid.style.columnWidth = '120px'
+    grid.style.columnGap = '4px'
+  } else if (isTablet) {
+    grid.style.columnWidth = '180px'
+    grid.style.columnGap = '8px'
+  } else {
+    grid.style.columnWidth = '220px'
+    grid.style.columnGap = '10px'
+  }
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function renderPage(){
+  var box=document.getElementById('results')
+  var stype=document.getElementById('stype').value
+  var html=''
+  
+  if(stype==='images'){
+    html+='<div class="grid masonry">'
+    for(var i=0;i<allResults.length;i++){
+      var it=allResults[i]||{}
+      var thumb=it.url||''  // 缩略图URL
+      var original=(it.snippet||'')  // 原图URL
+      var displayUrl=original||thumb  // 显示用的URL，优先原图
+      var clickUrl=original||thumb  // 点击跳转的URL，优先原图
+      var title=it.title||'(图片)'
+      var page=(it.page||'')
+      
+      // 图片搜索只显示图片，不显示链接卡片
+      html+='<a class="tile" data-page="'+escapeHtml(page)+'" data-original="'+escapeHtml(original)+'" href="'+escapeHtml(clickUrl)+'" target="_blank" title="'+escapeHtml(title)+'">'
+          + '<img src="'+escapeHtml(displayUrl)+'" data-thumb="'+escapeHtml(thumb)+'" data-original="'+escapeHtml(original)+'" loading="lazy" referrerpolicy="no-referrer" onerror="imgErrorHandler(event)" />'
+          + '</a>'
+    }
+    html+='</div>'
+    
+    // 调整图片网格
+    adjustImageGrid()
+  }else{
+      // 对于网页和视频搜索，支持分页显示
+      if(stype === 'web' || stype === 'videos'){
+        var pageSize = 8  // 统一每页显示8条
+        var currentPage = pageByType[stype] || 0
+        var startIndex = currentPage * pageSize
+        var endIndex = startIndex + pageSize
+        
+        // 只显示当前页的结果
+        var pageResults = allResults.slice(startIndex, endIndex)
+      
+      for(var i=0;i<pageResults.length;i++){
+        var it=pageResults[i]||{}
+        var url=it.url||''
+        var title=it.title||it.url||'(无标题)'
+        html+='<div class="result">'
+          + '<a href="'+escapeHtml(url)+'" target="_blank">'+escapeHtml(title)+'</a>'
+          + '<div class="small">'+escapeHtml(url)+'</div>'
+          + '</div>'
+      }
+    } else {
+      // 其他搜索类型显示所有结果
+      for(var i=0;i<allResults.length;i++){
+        var it=allResults[i]||{}
+        var url=it.url||''
+        var title=it.title||it.url||'(无标题)'
+        html+='<div class="result">'
+          + '<a href="'+escapeHtml(url)+'" target="_blank">'+escapeHtml(title)+'</a>'
+          + '<div class="small">'+escapeHtml(url)+'</div>'
+          + '</div>'
+      }
+    }
+  }
+  
+  box.innerHTML=html
+  
+  // 更新计数显示和翻页按钮
+  if(stype === 'web' || stype === 'videos'){
+    var currentPage = pageByType[stype] || 0
+    var pageSize = 8
+    var totalPages = Math.ceil(allResults.length / pageSize)
+    
+    // 更新计数显示
+    document.getElementById('count').textContent=allResults.length?('共 '+allResults.length+' 条结果，当前显示第 '+(currentPage+1)+' 页，共 '+totalPages+' 页'):''
+    
+    // 显示/隐藏翻页按钮
+    var pagination = document.getElementById('pagination')
+    if(allResults.length > pageSize){
+      pagination.style.display = 'flex'
+      document.getElementById('prevPage').disabled = (currentPage === 0)
+      document.getElementById('nextPage').disabled = (currentPage >= totalPages - 1)
+      document.getElementById('pageInfo').textContent = (currentPage + 1) + ' / ' + totalPages
+      
+      // 网页和视频搜索在最后一页显示手动补充按钮
+      if((stype === 'web' || stype === 'videos') && currentPage >= totalPages - 1){
+        var manualLoadBtn = document.getElementById('manualLoadBtn')
+        if(!manualLoadBtn){
+          var btn = document.createElement('button')
+          btn.id = 'manualLoadBtn'
+          btn.textContent = '手动补充'
+          btn.onclick = function(){
+            loadMore()
+          }
+          btn.style.marginLeft = '0.5rem'
+          pagination.appendChild(btn)
+        }
+        manualLoadBtn.style.display = 'inline-block'
+      } else {
+        var manualLoadBtn = document.getElementById('manualLoadBtn')
+        if(manualLoadBtn){
+          manualLoadBtn.style.display = 'none'
+        }
+      }
+    } else {
+      pagination.style.display = 'none'
+    }
+  } else {
+    document.getElementById('count').textContent=allResults.length?('共 '+allResults.length+' 条结果'):''
+    document.getElementById('pagination').style.display = 'none'
+  }
+  
+  // backTop 显示控制
+  var bt=document.getElementById('backTop')
+  if(bt){ bt.style.display = (window.scrollY>400)?'block':'none' }
+}
+function imgErrorHandler(ev){
+  try{
+    var img=ev && ev.target; if(!img) return;
+    var thumb=img.getAttribute('data-thumb');
+    var original=img.getAttribute('data-original');
+    var a=img.closest('a');
+    
+    // 如果当前显示的是原图，尝试显示缩略图
+    if(original && img.src===original && thumb){
+      img.src=thumb;
+      if(a) a.href=thumb;
+      img.removeAttribute('data-original');
+    }
+    // 如果当前显示的是缩略图，或者没有其他选择，移除图片
+    else{
+      if(a) a.remove();
+    }
+  }catch(e){/* ignore */}
+}
+// 右键菜单逻辑
+var ctxTarget=null
+function showCtxMenu(e){
+  var m=document.getElementById('ctxMenu'); if(!m) return
+  var x=e.clientX, y=e.clientY
+  m.style.display='block'
+  // 防止超出视窗
+  var vw=window.innerWidth, vh=window.innerHeight
+  var mw=m.offsetWidth, mh=m.offsetHeight
+  if(x+mw>vw) x=vw-mw-4
+  if(y+mh>vh) y=vh-mh-4
+  m.style.left=x+'px'; m.style.top=y+'px'
+}
+function hideCtxMenu(){ var m=document.getElementById('ctxMenu'); if(m) m.style.display='none'; ctxTarget=null }
+function onCtxAction(action){
+  try{
+    if(!ctxTarget) return
+    var a=ctxTarget.closest('a.tile'); if(!a) return
+    var imgUrl=a.getAttribute('href')||''
+    var originalUrl=a.getAttribute('data-original')||''
+    var pageUrl=a.getAttribute('data-page')||''
+    
+    if(action==='view'){ 
+      // 优先打开原图，否则打开当前链接
+      var targetUrl=originalUrl||imgUrl;
+      window.open(targetUrl,'_blank'); 
+      return 
+    }
+    if(action==='view-source'){
+      // 查看图源：打开图片的来源网站/页面
+      if(pageUrl && pageUrl.trim() !== ''){
+        window.open(pageUrl,'_blank');
+      } else {
+        // 如果没有图源页面，尝试从图片URL推断来源网站
+        try{
+          var targetUrl = originalUrl || imgUrl;
+          if(targetUrl && targetUrl.trim() !== ''){
+            var urlObj = new URL(targetUrl);
+            var sourceUrl = urlObj.protocol + '//' + urlObj.hostname;
+            window.open(sourceUrl,'_blank');
+          } else {
+            alert('无法获取图源信息');
+          }
+        } catch(e){
+          alert('无法解析图源URL');
+        }
+      }
+      return
+    }
+  }finally{ hideCtxMenu() }
+}
+ async function doSearch(){
+   var q=document.getElementById('q').value.trim()
+   var stype=document.getElementById('stype').value
+   var status=document.getElementById('status')
+   var box=document.getElementById('results')
+     status.textContent='正在搜索…'
+     box.innerHTML=''
+     allResults=[]
+     pageByType={web:0,images:0,videos:0,files:0}
+     try{
+       // 不设置数量限制，使用后端默认设置
+       var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:0})})
+       var data=await resp.json()
+       allResults=(data && Array.isArray(data.results))?data.results:[]
+       
+       if(stype === 'web' || stype === 'videos'){
+         status.textContent= allResults.length?('共 '+allResults.length+' 条结果，使用翻页浏览'):'无结果'
+       } else {
+         status.textContent= allResults.length?('共 '+allResults.length+' 条结果，滚动加载更多'):'无结果'
+       }
+       
+       var as=document.getElementById('appendStatus'); if(as) as.textContent=''
+       renderPage()
+       // 所有搜索类型都支持触底加载
+       maybeLoadMore()
+     }catch(e){status.textContent='请求失败'}
+ }
+// 翻页函数
+function goToPage(direction) {
+  var stype = document.getElementById('stype').value
+  if(stype !== 'web' && stype !== 'videos') return
+  
+  var currentPage = pageByType[stype] || 0
+  var pageSize = 8
+  var totalPages = Math.ceil(allResults.length / pageSize)
+  var newPage = currentPage + direction
+  
+  if(newPage >= 0 && newPage < totalPages) {
+    pageByType[stype] = newPage
+    renderPage()
+  }
+}
+
+async function loadMore(){
+  if(isLoadingMore) return
+  var q=document.getElementById('q').value.trim()
+  var stype=document.getElementById('stype').value
+  var status=document.getElementById('status')
+  
+  // 对于网页和视频搜索，使用手动补充功能
+  if(stype === 'web' || stype === 'videos'){
+    status.textContent='正在加载更多结果…'
+    var as=document.getElementById('appendStatus'); if(as) as.textContent='正在加载更多结果…'
+    try{
+      isLoadingMore=true
+      var nextPage=(pageByType[stype]||0)+1
+      var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:nextPage})})
+      var data=await resp.json()
+      console.log('手动补充响应数据:', data)
+      var more=(data && Array.isArray(data.results))?data.results:[]
+      console.log('解析出的结果数量:', more.length)
+      
+      if(more.length > 0){
+        allResults.push(...more)
+        pageByType[stype] = nextPage
+        renderResults()
+        status.textContent=''
+        var as=document.getElementById('appendStatus'); if(as) as.textContent=''
+      } else {
+        status.textContent='没有更多结果了'
+        var as=document.getElementById('appendStatus'); if(as) as.textContent='没有更多结果了'
+      }
+    } catch(e){
+      console.error('加载更多失败:',e)
+      status.textContent='加载失败'
+      var as=document.getElementById('appendStatus'); if(as) as.textContent='加载失败'
+    } finally{
+      isLoadingMore=false
+    }
+  } else {
+    // 其他搜索类型保持原有逻辑
+    status.textContent='正在加载更多结果…'
+    var as=document.getElementById('appendStatus'); if(as) as.textContent='正在加载更多结果…'
+    try{
+      isLoadingMore=true
+      var nextPage=(pageByType[stype]||0)+1
+      var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:nextPage})})
+      var data=await resp.json()
+      var more=(data && Array.isArray(data.results))?data.results:[]
+      var seen=new Set(allResults.map(function(it){
+        if(stype === 'images'){
+          // 图片搜索使用snippet作为去重键
+          return it.snippet || ''
+        } else {
+          // 其他搜索使用url|snippet作为去重键
+          return (it.url||'')+'|'+(it.snippet||'')
+        }
+      }))
+      var added=0
+      more.forEach(function(it){
+        if(it && (it.url||it.snippet)){
+          var key
+          if(stype === 'images'){
+            // 图片搜索使用snippet作为去重键
+            key = it.snippet || ''
+          } else {
+            // 其他搜索使用url|snippet作为去重键
+            key = (it.url||'')+'|'+(it.snippet||'')
+          }
+          if(!seen.has(key)){ allResults.push(it); seen.add(key); added++ }
+        }
+      })
+      if(added>0){ pageByType[stype]=nextPage }
+      var msg = added?('已加载 '+added+' 条新结果，共 '+allResults.length+' 条 (第 '+(pageByType[stype]+1)+' 页准备中)'):'没有更多新的结果。可尝试重复补充，因特殊原因可能过于快速的补充会被网站拒绝'
+      status.textContent = msg
+      if(as) as.textContent = msg
+      renderPage()
+    }catch(e){ status.textContent='继续搜索失败' }
+    finally{ isLoadingMore=false; renderPage(); lastLoadTs=Date.now() }
+  }
+}
+ function maybeLoadMore(){
+   var stype=document.getElementById('stype').value
+   var resultsContainer = document.getElementById('results')
+   if(!resultsContainer) return
+   
+  // 网页和视频搜索使用翻页按钮，不使用滚动加载
+  if(stype === 'web' || stype === 'videos') return
+   
+  // 检查搜索结果容器是否滚动到底部
+  var nearBottom = (resultsContainer.scrollTop + resultsContainer.clientHeight) >= (resultsContainer.scrollHeight - 200)
+  var cooled = (Date.now() - lastLoadTs) > 500  // 减少冷却时间
+  if(nearBottom && cooled && !isLoadingMore){ loadMore() }
+ }
+ // 过滤模式始终显示
+ 
+// 为搜索结果容器添加滚动事件监听
+document.addEventListener('DOMContentLoaded', function(){
+  // 初始化自适应功能
+  detectDevice()
+  addTouchSupport()
+  
+  var resultsContainer = document.getElementById('results')
+  if(resultsContainer){
+    resultsContainer.addEventListener('scroll', maybeLoadMore)
+  }
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', function(){
+    detectDevice()
+    adjustImageGrid()
+  })
+})
+ // 右键菜单绑定
+ document.addEventListener('click', hideCtxMenu)
+ document.addEventListener('contextmenu', function(ev){
+   var results=document.getElementById('results')
+   if(!results) return
+   if(results.contains(ev.target)){
+     var a=ev.target.closest('a.tile')
+     if(a){ ev.preventDefault(); ctxTarget=ev.target; showCtxMenu(ev) }
+   }
+ })
+ document.addEventListener('keydown', function(e){ if(e.key==='Escape') hideCtxMenu() })
+ window.doSearch=doSearch
+</script>
+<div id="ctxMenu">
+  <div class="item" onclick="onCtxAction('view')">查看图片</div>
+  <div class="item" onclick="onCtxAction('view-source')">查看图源</div>
+</div>
+</body>
+</html>
