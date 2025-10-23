@@ -1302,28 +1302,26 @@ class WebSearch(BaseSearch):
             else:
                 return
             
-            # 从配置中删除指定域名
+            # 从所有分类中删除指定域名
             for category, config in sites_config.items():
-                if config.get("enabled", True):
-                    # 从域名列表中删除
-                    domains = config.get("domains", [])
-                    if domain in domains:
-                        domains.remove(domain)
-                        config["domains"] = domains
-                    
-                    # 从搜索URL中删除
-                    search_urls = config.get("search_urls", {})
-                    if domain in search_urls:
-                        del search_urls[domain]
-                        config["search_urls"] = search_urls
-                    
-                    # 从域名状态中删除
-                    domain_status = config.get("domain_status", {})
-                    if domain in domain_status:
-                        del domain_status[domain]
-                        config["domain_status"] = domain_status
-                    
-                    break
+                # 从域名列表中删除
+                domains = config.get("domains", [])
+                if domain in domains:
+                    domains.remove(domain)
+                    config["domains"] = domains
+                    print(f"[DEBUG] 从分类 {category} 中删除域名: {domain}")
+                
+                # 从搜索URL中删除
+                search_urls = config.get("search_urls", {})
+                if domain in search_urls:
+                    del search_urls[domain]
+                    config["search_urls"] = search_urls
+                
+                # 从域名状态中删除
+                domain_status = config.get("domain_status", {})
+                if domain in domain_status:
+                    del domain_status[domain]
+                    config["domain_status"] = domain_status
             
             # 保存配置
             self._save_config()
@@ -1906,28 +1904,26 @@ class ImageSearch(BaseSearch):
             else:
                 return
             
-            # 从配置中删除指定域名
+            # 从所有分类中删除指定域名
             for category, config in sites_config.items():
-                if config.get("enabled", True):
-                    # 从域名列表中删除
-                    domains = config.get("domains", [])
-                    if domain in domains:
-                        domains.remove(domain)
-                        config["domains"] = domains
-                    
-                    # 从搜索URL中删除
-                    search_urls = config.get("search_urls", {})
-                    if domain in search_urls:
-                        del search_urls[domain]
-                        config["search_urls"] = search_urls
-                    
-                    # 从域名状态中删除
-                    domain_status = config.get("domain_status", {})
-                    if domain in domain_status:
-                        del domain_status[domain]
-                        config["domain_status"] = domain_status
-                    
-                    break
+                # 从域名列表中删除
+                domains = config.get("domains", [])
+                if domain in domains:
+                    domains.remove(domain)
+                    config["domains"] = domains
+                    print(f"[DEBUG] 从分类 {category} 中删除域名: {domain}")
+                
+                # 从搜索URL中删除
+                search_urls = config.get("search_urls", {})
+                if domain in search_urls:
+                    del search_urls[domain]
+                    config["search_urls"] = search_urls
+                
+                # 从域名状态中删除
+                domain_status = config.get("domain_status", {})
+                if domain in domain_status:
+                    del domain_status[domain]
+                    config["domain_status"] = domain_status
             
             # 保存配置
             self._save_config()
@@ -2912,28 +2908,26 @@ class ResourceSearch(BaseSearch):
             else:
                 return
             
-            # 从配置中删除指定域名
+            # 从所有分类中删除指定域名
             for category, config in sites_config.items():
-                if config.get("enabled", True):
-                    # 从域名列表中删除
-                    domains = config.get("domains", [])
-                    if domain in domains:
-                        domains.remove(domain)
-                        config["domains"] = domains
-                    
-                    # 从搜索URL中删除
-                    search_urls = config.get("search_urls", {})
-                    if domain in search_urls:
-                        del search_urls[domain]
-                        config["search_urls"] = search_urls
-                    
-                    # 从域名状态中删除
-                    domain_status = config.get("domain_status", {})
-                    if domain in domain_status:
-                        del domain_status[domain]
-                        config["domain_status"] = domain_status
-                    
-                    break
+                # 从域名列表中删除
+                domains = config.get("domains", [])
+                if domain in domains:
+                    domains.remove(domain)
+                    config["domains"] = domains
+                    print(f"[DEBUG] 从分类 {category} 中删除域名: {domain}")
+                
+                # 从搜索URL中删除
+                search_urls = config.get("search_urls", {})
+                if domain in search_urls:
+                    del search_urls[domain]
+                    config["search_urls"] = search_urls
+                
+                # 从域名状态中删除
+                domain_status = config.get("domain_status", {})
+                if domain in domain_status:
+                    del domain_status[domain]
+                    config["domain_status"] = domain_status
             
             # 保存配置
             self._save_config()

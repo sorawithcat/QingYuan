@@ -1560,7 +1560,8 @@
             if (!config[siteType]) return 0;
             let count = 0;
             for (const category in config[siteType]) {
-                if (config[siteType][category].domains) {
+                // 只计算主配置（custom）的域名数量，不包括分类
+                if (category === 'custom' && config[siteType][category].domains) {
                     count += config[siteType][category].domains.length;
                 }
             }

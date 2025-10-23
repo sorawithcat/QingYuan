@@ -66,26 +66,13 @@
   "resource_sites": {
     "custom": {
       "domains": [
-        "bbs.3dmgame.com",
-        "ggbases.dlgal.com",
         "gugu3.com",
         "linovelib.com",
         "www.gamer520.com",
-        "inarigal.com",
         "www.flysheep6.com",
-        "www.88mv.org",
-        "cosplaytele.com",
-        "www.iwara.tv"
+        "www.88mv.org"
       ],
       "search_urls": {
-        "bbs.3dmgame.com": [
-          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}",
-          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}&srchtype=title"
-        ],
-        "ggbases.dlgal.com": [
-          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=0",
-          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=1"
-        ],
         "gugu3.com": [
           "https://www.gugu3.com/search?q={query}",
           "https://www.gugu3.com/"
@@ -97,9 +84,6 @@
         "www.gamer520.com": [
           "https://www.gamer520.com/?s={query}"
         ],
-        "inarigal.com": [
-          "https://inarigal.com/?search={query}"
-        ],
         "www.flysheep6.com": [
           "https://www.flysheep6.com/?s={query}"
         ],
@@ -107,47 +91,28 @@
           "https://www.88mv.org/search/search.php?q=pg-1-wd-{query}",
           "https://www.88mv.org/search/search.php?q=pg-2-wd-{query}",
           "https://www.88mv.org/search/search.php?q=pg-3-wd-{query}"
-        ],
-        "cosplaytele.com": [
-          "https://cosplaytele.com/?s={query}"
-        ],
-        "www.iwara.tv": [
-          "https://www.iwara.tv/search?query={query}&type=videos",
-          "https://www.iwara.tv/search?query={query}&type=images"
         ]
       },
       "enabled": true,
       "domain_status": {
-        "bbs.3dmgame.com": true,
         "www.gamer520.com": true,
-        "inarigal.com": true,
         "www.flysheep6.com": true,
         "www.88mv.org": true,
-        "ggbases.dlgal.com": true,
         "gugu3.com": true,
-        "linovelib.com": true,
-        "cosplaytele.com": true,
-        "www.iwara.tv": true
+        "linovelib.com": true
       }
     },
     "游戏": {
       "domains": [
-        "bbs.3dmgame.com",
-        "ggbases.dlgal.com",
         "www.gamer520.com",
         "www.flysheep6.com"
       ],
       "enabled": true,
       "domain_status": {
-        "bbs.3dmgame.com": true,
         "ggbases.dlgal.com": true,
         "www.gamer520.com": true
       },
       "search_urls": {
-        "bbs.3dmgame.com": [
-          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}",
-          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}&srchtype=title"
-        ],
         "ggbases.dlgal.com": [
           "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=0",
           "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=1"
@@ -158,10 +123,7 @@
       }
     },
     "gal": {
-      "domains": [
-        "ggbases.dlgal.com",
-        "inarigal.com"
-      ],
+      "domains": [],
       "enabled": true
     },
     "视频": {
@@ -183,10 +145,7 @@
       "enabled": true
     },
     "h": {
-      "domains": [
-        "cosplaytele.com",
-        "www.iwara.tv"
-      ],
+      "domains": [],
       "enabled": true
     }
   },
@@ -222,10 +181,6 @@
       "description": "",
       "created_at": 1761194344.0532022
     },
-    "gal": {
-      "description": "",
-      "created_at": 1761194781.3247347
-    },
     "小说": {
       "description": "",
       "created_at": 1761195541.4510918
@@ -237,10 +192,6 @@
     "视频": {
       "description": "",
       "created_at": 1761195716.7786472
-    },
-    "h": {
-      "description": "",
-      "created_at": 1761196764.753894
     }
   }
 }
