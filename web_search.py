@@ -80,16 +80,21 @@ class BaseSearch:
         except Exception as e:
             print(f"[DEBUG] 加载配置失败: {e}")
         
-        # 返回默认配置
-        return {
-            "search_engines": {"bing": {"name": "Bing", "base_url": "https://www.bing.com", "enabled": True}},
-            "web_sites": {},
-            "resource_sites": {},
-            "video_sites": {},
-            "image_sites": {},
-            "blacklist": {"domains": [], "enabled": True},
-            "settings": {"engine_max_results": 35, "site_timeout": 8}
-        }
+        # 返回默认配置 - 使用main.py中的DEFAULT_CONFIG
+        try:
+            from main import DEFAULT_CONFIG
+            return DEFAULT_CONFIG.copy()
+        except ImportError:
+            # 如果无法导入，返回最小配置
+            return {
+                "search_engines": {},
+                "web_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "resource_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "video_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "image_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "blacklist": {"domains": [], "enabled": True},
+                "settings": {"engine_max_results": 35, "site_timeout": 10}
+            }
 
     def _save_config(self) -> None:
         """保存配置到文件"""
@@ -2735,16 +2740,21 @@ class UnifiedSearch:
         except Exception as e:
             print(f"[DEBUG] 加载配置失败: {e}")
         
-        # 返回默认配置
-        return {
-            "search_engines": {"bing": {"name": "Bing", "base_url": "https://www.bing.com", "enabled": True}},
-            "web_sites": {},
-            "resource_sites": {},
-            "video_sites": {},
-            "image_sites": {},
-            "blacklist": {"domains": [], "enabled": True},
-            "settings": {"engine_max_results": 35, "site_timeout": 8}
-        }
+        # 返回默认配置 - 使用main.py中的DEFAULT_CONFIG
+        try:
+            from main import DEFAULT_CONFIG
+            return DEFAULT_CONFIG.copy()
+        except ImportError:
+            # 如果无法导入，返回最小配置
+            return {
+                "search_engines": {},
+                "web_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "resource_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "video_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "image_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
+                "blacklist": {"domains": [], "enabled": True},
+                "settings": {"engine_max_results": 35, "site_timeout": 10}
+            }
     
     def _save_config(self) -> None:
         """保存配置到文件"""

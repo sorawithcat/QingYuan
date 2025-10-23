@@ -1553,8 +1553,29 @@
         function resetConfig() {
             if (!confirm('确定要重置所有配置吗？这将删除所有自定义设置。')) return;
             
-            // 这里可以添加重置配置的逻辑
-            showSuccess('配置已重置');
+            fetch('/api/config/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess(data.message || '配置已重置');
+                    // 重新加载配置数据
+                    setTimeout(async () => {
+                        await loadConfig();
+                        showSuccess('配置已重置并刷新完成');
+                    }, 500);
+                } else {
+                    showError(data.error || '重置配置失败');
+                }
+            })
+            .catch(error => {
+                console.error('重置配置失败:', error);
+                showError('重置配置失败: ' + error.message);
+            });
         }
 
 
