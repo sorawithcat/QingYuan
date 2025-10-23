@@ -5,7 +5,7 @@
 !define COMPANYNAME "QingYuan"
 !define DESCRIPTION "网络搜索工具"
 !define VERSIONMAJOR 1
-!define VERSIONMINOR 1
+!define VERSIONMINOR 2
 !define VERSIONBUILD 0
 !define HELPURL "https://github.com/your-repo/qingyuan"
 !define UPDATEURL "https://github.com/your-repo/qingyuan"
@@ -44,8 +44,9 @@ section "install"
     ; Copy main program
     file "dist\*.exe"
     
-    ; Copy config file
+    ; Copy config files
     file "sites_config.json"
+    file "proxy_config.json"
     
     ; Copy static files
     file /r "public"
@@ -85,6 +86,7 @@ section "uninstall"
     ; Delete files
     delete "$INSTDIR\*.exe"
     delete "$INSTDIR\sites_config.json"
+    delete "$INSTDIR\proxy_config.json"
     delete "$INSTDIR\README.txt"
     delete "$INSTDIR\close.bat"
     delete "$INSTDIR\uninstall.exe"

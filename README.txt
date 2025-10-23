@@ -6,7 +6,7 @@ Welcome to QingYuan!
 Program Information:
 -------------------
 - Program Name: QingYuan
-- Version: 1.1.0
+- Version: 1.2.0
 - Function: Multi-engine network search tool with enhanced features
 
 How to Start:
@@ -24,7 +24,7 @@ Main Features:
 - Video Search: Search video content
 - Resource Search: Search files, software, games and other resources
 - Admin Interface: Configure search websites and settings
-- Enhanced Features: Selenium support, improved English compatibility, concurrent searching
+- Enhanced Features: Selenium support, improved English compatibility, concurrent searching, anti-captcha features
 
 Access URLs:
 ------------

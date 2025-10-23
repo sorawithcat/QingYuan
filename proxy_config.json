@@ -1,0 +1,8 @@
+{
+  "proxy_settings": {
+    "enabled": false,
+    "proxies": [],
+    "rotation_strategy": "round_robin",
+    "test_url": "http://httpbin.org/ip"
+  }
+}

@@ -42,6 +42,18 @@ class BaseSearch:
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/121.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/120.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+    ]
+    
+    # 代理服务器列表
+    PROXY_LIST = [
+
     ]
     
     # 无效链接模式
@@ -58,7 +70,7 @@ class BaseSearch:
         """
         self.config_file = config_file
         self.config = self._load_config()
-        self.forbidden_domains = set()  # 403错误域名黑名单
+        self.current_proxy_index = 0  # 当前代理索引
         
         # 基础配置
         self.request_timeout = self.config.get("settings", {}).get("site_timeout", 10)  # 从配置文件读取超时时间
@@ -105,6 +117,89 @@ class BaseSearch:
             print(f"[DEBUG] 保存配置失败: {e}")
             raise e  # 重新抛出异常，让调用方知道保存失败
 
+    def _load_proxy_config(self) -> Dict[str, Any]:
+        """加载代理配置
+        
+        Returns:
+            代理配置字典
+        """
+        try:
+            if os.path.exists('proxy_config.json'):
+                with open('proxy_config.json', 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception as e:
+            print(f"[DEBUG] 加载代理配置失败: {e}")
+        
+        return {
+            "proxy_settings": {
+                "enabled": False,
+                "proxies": [],
+                "rotation_strategy": "round_robin",
+                "test_url": "http://httpbin.org/ip"
+            }
+        }
+
+    def _get_next_proxy(self) -> Optional[str]:
+        """获取下一个代理服务器
+        
+        Returns:
+            代理URL或None
+        """
+        proxy_config = self._load_proxy_config()
+        if not proxy_config.get("proxy_settings", {}).get("enabled", False):
+            return None
+        
+        proxies = proxy_config.get("proxy_settings", {}).get("proxies", [])
+        if not proxies:
+            return None
+        
+        # 过滤启用的代理
+        enabled_proxies = [p for p in proxies if p.get("enabled", False)]
+        if not enabled_proxies:
+            return None
+        
+        proxy = enabled_proxies[self.current_proxy_index]
+        self.current_proxy_index = (self.current_proxy_index + 1) % len(enabled_proxies)
+        
+        # 构建代理URL
+        proxy_url = proxy.get("url", "")
+        if proxy.get("username") and proxy.get("password"):
+            # 如果有认证信息，添加到URL中
+            if "://" in proxy_url:
+                protocol, rest = proxy_url.split("://", 1)
+                proxy_url = f"{protocol}://{proxy.get('username')}:{proxy.get('password')}@{rest}"
+        
+        return proxy_url
+
+    def _test_proxy(self, proxy_url: str) -> bool:
+        """测试代理是否可用
+        
+        Args:
+            proxy_url: 代理URL
+            
+        Returns:
+            是否可用
+        """
+        try:
+            proxy_config = self._load_proxy_config()
+            test_url = proxy_config.get("proxy_settings", {}).get("test_url", "http://httpbin.org/ip")
+            
+            proxies = {
+                'http': proxy_url,
+                'https': proxy_url
+            }
+            
+            response = requests.get(test_url, proxies=proxies, timeout=10)
+            if response.status_code == 200:
+                print(f"[DEBUG] 代理测试成功: {proxy_url}")
+                return True
+            else:
+                print(f"[DEBUG] 代理测试失败: {proxy_url}, 状态码: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"[DEBUG] 代理测试异常: {proxy_url}, 错误: {e}")
+            return False
+
     def _session(self) -> requests.Session:
         """创建请求会话
         
@@ -112,13 +207,33 @@ class BaseSearch:
             配置好的requests会话对象
         """
         s = requests.Session()
+        
+        # 随机选择User-Agent
+        user_agent = random.choice(self.USER_AGENTS)
         s.headers.update({
-            "User-Agent": random.choice(self.USER_AGENTS),
+            "User-Agent": user_agent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate",
             "Cache-Control": "no-cache",
             "Pragma": "no-cache",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
         })
+        
+        # 设置代理（如果有的话）
+        proxy = self._get_next_proxy()
+        if proxy:
+            # 测试代理可用性
+            if self._test_proxy(proxy):
+                s.proxies = {
+                    'http': proxy,
+                    'https': proxy
+                }
+                print(f"[DEBUG] 使用代理: {proxy}")
+            else:
+                print(f"[DEBUG] 代理不可用，跳过: {proxy}")
+        
         s.verify = False
         return s
 
@@ -133,19 +248,52 @@ class BaseSearch:
             
         try:
             options = Options()
+            # 基础配置
             options.add_argument('--headless')  # 无头模式
             options.add_argument('--no-sandbox')
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--disable-gpu')
             options.add_argument('--window-size=1920,1080')
-            options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
             
-            # 禁用图片加载以提高速度
-            prefs = {"profile.managed_default_content_settings.images": 2}
+            # 反检测配置
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option('useAutomationExtension', False)
+            
+            # 随机User-Agent
+            user_agent = random.choice(self.USER_AGENTS)
+            options.add_argument(f'--user-agent={user_agent}')
+            
+            # 禁用图片和CSS加载以提高速度
+            prefs = {
+                "profile.managed_default_content_settings.images": 2,
+                "profile.managed_default_content_settings.stylesheets": 2,
+                "profile.managed_default_content_settings.plugins": 2,
+                "profile.managed_default_content_settings.popups": 2,
+                "profile.managed_default_content_settings.geolocation": 2,
+                "profile.managed_default_content_settings.media_stream": 2,
+            }
             options.add_experimental_option("prefs", prefs)
+            
+            # 禁用各种功能以减少检测
+            options.add_argument('--disable-extensions')
+            options.add_argument('--disable-plugins')
+            options.add_argument('--disable-images')
+            options.add_argument('--disable-javascript')
+            options.add_argument('--disable-web-security')
+            options.add_argument('--disable-features=VizDisplayCompositor')
             
             driver = webdriver.Chrome(options=options)
             driver.set_page_load_timeout(30)
+            
+            # 执行反检测脚本
+            driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+            driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+                "userAgent": user_agent,
+                "acceptLanguage": "zh-CN,zh;q=0.9,en;q=0.8",
+                "platform": "Win32"
+            })
+            
             return driver
         except Exception as e:
             print(f"[DEBUG] 创建Selenium WebDriver失败: {e}")
@@ -172,6 +320,8 @@ class BaseSearch:
             WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
+            
+            time.sleep(random.uniform(0.5, 1))
             
             # 获取页面源码
             html = driver.page_source
@@ -224,7 +374,8 @@ class BaseSearch:
             
             # 对于百度等国内网站，使用更长的超时时间
             timeout = self.request_timeout
-
+            if 'baidu.com' in url or 'sogou.com' in url or 'so.com' in url:
+                timeout = 15  # 国内网站使用15秒超时
             
             resp = session.get(url, params=params, headers=headers, timeout=timeout)
             print(f"[DEBUG] 响应状态: {resp.status_code}, 内容长度: {len(resp.content)}")

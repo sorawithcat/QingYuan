@@ -9,6 +9,7 @@ a = Analysis(
     datas=[
         ('public', 'public'),
         ('sites_config.json', '.'),
+        ('proxy_config.json', '.'),
         ('qingyuan_core.py', '.'),
         ('web_search.py', '.'),
     ],

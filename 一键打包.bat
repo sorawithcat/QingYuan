@@ -29,6 +29,7 @@ if not exist "release" mkdir "release"
 echo 正在复制文件到release目录...
 copy "dist\QingYuan.exe" "release\"
 copy "sites_config.json" "release\"
+copy "proxy_config.json" "release\"
 xcopy "public" "release\public\" /E /I
 
 if exist "QingYuan_Setup.exe" (
