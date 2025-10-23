@@ -22,6 +22,7 @@ Name "${APPNAME}"
 outFile "${INSTALLERNAME}"
 
 !include LogicLib.nsh
+!include nsDialogs.nsh
 
 ; Define variables
 Var StartAfterInstall

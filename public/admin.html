@@ -2533,8 +2533,24 @@
         
         // 刷新数据
         async function refreshData() {
-            await loadConfig();
-            showSuccess('数据已刷新');
+            try {
+                // 先调用重新加载配置API
+                const reloadResponse = await fetch('/api/config/reload', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                
+                if (reloadResponse.ok) {
+                    // 然后重新加载配置
+                    await loadConfig();
+                    showSuccess('数据已刷新');
+                } else {
+                    showError('重新加载配置失败');
+                }
+            } catch (error) {
+                console.error('刷新数据失败:', error);
+                showError('刷新数据失败');
+            }
         }
         
         // 导出配置
@@ -2558,11 +2574,29 @@
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = async function(e) {
                         try {
                             const importedConfig = JSON.parse(e.target.result);
-                            // 这里可以添加入口配置的逻辑
-                            showSuccess('配置导入成功');
+                            
+                            // 发送到服务器保存配置
+                            const response = await fetch('/api/config/import', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify(importedConfig)
+                            });
+                            
+                            if (response.ok) {
+                                const result = await response.json();
+                                if (result.success) {
+                                    showSuccess('配置导入成功');
+                                    // 重新加载配置
+                                    await loadConfig();
+                                } else {
+                                    showError(result.message || '配置导入失败');
+                                }
+                            } else {
+                                showError('配置导入失败');
+                            }
                         } catch (error) {
                             showError('配置文件格式错误');
                         }

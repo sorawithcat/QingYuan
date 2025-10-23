@@ -188,6 +188,8 @@ def main():
     def get_config():
         """获取配置"""
         try:
+            # 强制重新加载配置
+            qingyuan.web_search.config = qingyuan.web_search._load_config()
             config = qingyuan.web_search.get_all_sites()
             return jsonify(config)
         except Exception as e:
@@ -210,6 +212,41 @@ def main():
             return jsonify(result)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
+    @app.post('/api/config/import')
+    def import_config():
+        """导入配置"""
+        try:
+            data = request.get_json(force=True) or {}
+            
+            # 验证配置格式
+            required_keys = ['web_sites', 'image_sites', 'video_sites', 'resource_sites', 'blacklist', 'settings']
+            for key in required_keys:
+                if key not in data:
+                    return jsonify({'success': False, 'message': f'配置文件缺少必要字段: {key}'}), 400
+            
+            # 更新配置
+            qingyuan.web_search.config = data
+            qingyuan.web_search._save_config()
+            
+            return jsonify({'success': True, 'message': '配置导入成功'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'导入失败: {str(e)}'}), 500
+
+    @app.post('/api/config/reload')
+    def reload_config():
+        """重新加载配置"""
+        try:
+            # 强制重新加载配置
+            qingyuan.web_search.config = qingyuan.web_search._load_config()
+            # 同步到所有搜索类
+            qingyuan.web_search.web_search.config = qingyuan.web_search.config
+            qingyuan.web_search.image_search.config = qingyuan.web_search.config
+            qingyuan.web_search.video_search.config = qingyuan.web_search.config
+            qingyuan.web_search.resource_search.config = qingyuan.web_search.config
+            return jsonify({'success': True, 'message': '配置重新加载成功'})
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'重新加载失败: {str(e)}'}), 500
 
     @app.post('/api/config/remove-site')
     def remove_site():

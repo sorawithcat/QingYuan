@@ -3065,16 +3065,20 @@ class UnifiedSearch:
         try:
             if os.path.exists(self.config_file):
                 with open(self.config_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    config = json.load(f)
+                    print(f"[DEBUG] 从文件加载配置: {self.config_file}")
+                    return config
         except Exception as e:
             print(f"[DEBUG] 加载配置失败: {e}")
         
         # 返回默认配置 - 使用main.py中的DEFAULT_CONFIG
         try:
             from main import DEFAULT_CONFIG
+            print(f"[DEBUG] 使用默认配置")
             return DEFAULT_CONFIG.copy()
         except ImportError:
             # 如果无法导入，返回最小配置
+            print(f"[DEBUG] 使用最小配置")
             return {
                 "search_engines": {},
                 "web_sites": {"custom": {"domains": [], "enabled": True, "domain_status": {}, "search_urls": {}}},
@@ -3125,6 +3129,8 @@ class UnifiedSearch:
     
     def get_all_sites(self) -> Dict[str, Any]:
         """获取所有网站配置"""
+        # 确保配置是最新的
+        self.config = self._load_config()
         return self.config
     
     def add_site(self, domain: str, site_type: str, search_urls: Optional[List[str]] = None, category: str = 'custom') -> dict:
