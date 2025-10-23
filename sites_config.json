@@ -144,6 +144,6 @@
   },
   "settings": {
     "engine_max_results": 35,
-    "site_timeout": 8
+    "site_timeout": 10
   }
 }

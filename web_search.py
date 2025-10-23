@@ -15,6 +15,7 @@ import requests
 import urllib3
 from bs4 import BeautifulSoup
 
+
 # 尝试导入Selenium相关模块
 try:
     from selenium import webdriver
@@ -97,6 +98,7 @@ class BaseSearch:
                 json.dump(self.config, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"[DEBUG] 保存配置失败: {e}")
+            raise e  # 重新抛出异常，让调用方知道保存失败
 
     def _session(self) -> requests.Session:
         """创建请求会话
@@ -2417,12 +2419,6 @@ class ResourceSearch(BaseSearch):
             timeout_per_site = self.config.get("settings", {}).get("site_timeout", 8)  # 每个网站的超时时间
             
             for i, site_info in enumerate(sites, 1):
-                
-                # 注释掉早期停止逻辑，确保搜索所有配置的网站
-                # if len(results) >= max_results * 2:  # 最多获取2倍的结果用于筛选
-                #     print(f"[DEBUG] 已获取足够资源结果({len(results)}条)，停止搜索")
-                #     break
-                
                 domain = site_info["domain"]
                 search_urls = site_info.get("search_urls", [])
                 
@@ -2446,7 +2442,7 @@ class ResourceSearch(BaseSearch):
                 else:
                     print(f"[DEBUG] {domain} 没有配置搜索URL，跳过")
             
-            print(f"[DEBUG] 资源搜索完成，共搜索了 {len(sites)} 个网站（每个网站超时{timeout_per_site}秒），获得 {len(results)} 条原始结果")
+            print(f"[DEBUG] 资源搜索完成，共搜索了 {len(sites)} 个网站（每个网站超时{timeout_per_site}秒），获得 {len(results)} 条结果")
             
             # 去重
             seen = set()
@@ -2719,6 +2715,7 @@ class UnifiedSearch:
         # 先加载配置
         self.config = self._load_config()
         
+        
         # 创建各个搜索类的实例，传入共享的配置
         self.web_search = WebSearch(config_file)
         self.web_search.config = self.config  # 共享配置
@@ -2749,6 +2746,15 @@ class UnifiedSearch:
             "settings": {"engine_max_results": 35, "site_timeout": 8}
         }
     
+    def _save_config(self) -> None:
+        """保存配置到文件"""
+        try:
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                json.dump(self.config, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"[DEBUG] 保存配置失败: {e}")
+            raise e  # 重新抛出异常，让调用方知道保存失败
+    
     def search(self, query: str, search_type: str = 'web', page: int = 0, limit: Optional[int] = None, filter_mode: str = 'loose') -> List[Dict[str, Any]]:
         """统一搜索接口
         
@@ -2775,6 +2781,7 @@ class UnifiedSearch:
         else:
             print(f"[DEBUG] 未知的搜索类型: {search_type}")
             return []
+    
     
     def get_all_sites(self) -> Dict[str, Any]:
         """获取所有网站配置"""

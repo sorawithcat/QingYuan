@@ -702,8 +702,9 @@ function renderPage(){
   
   box.innerHTML=html
   
-  // 更新计数显示和翻页按钮
+  // 根据搜索类型决定是否显示分页
   if(stype === 'web' || stype === 'videos'){
+    // 网页和视频搜索使用分页显示
     var currentPage = pageByType[stype] || 0
     var pageSize = 8
     var totalPages = Math.ceil(allResults.length / pageSize)
@@ -718,31 +719,11 @@ function renderPage(){
       document.getElementById('prevPage').disabled = (currentPage === 0)
       document.getElementById('nextPage').disabled = (currentPage >= totalPages - 1)
       document.getElementById('pageInfo').textContent = (currentPage + 1) + ' / ' + totalPages
-      
-      // 网页和视频搜索在最后一页显示手动补充按钮
-      if((stype === 'web' || stype === 'videos') && currentPage >= totalPages - 1){
-        var manualLoadBtn = document.getElementById('manualLoadBtn')
-        if(!manualLoadBtn){
-          var btn = document.createElement('button')
-          btn.id = 'manualLoadBtn'
-          btn.textContent = '手动补充'
-          btn.onclick = function(){
-            loadMore()
-          }
-          btn.style.marginLeft = '0.5rem'
-          pagination.appendChild(btn)
-        }
-        manualLoadBtn.style.display = 'inline-block'
-      } else {
-        var manualLoadBtn = document.getElementById('manualLoadBtn')
-        if(manualLoadBtn){
-          manualLoadBtn.style.display = 'none'
-        }
-      }
     } else {
       pagination.style.display = 'none'
     }
   } else {
+    // 图片和资源搜索使用滚动加载，不显示分页
     document.getElementById('count').textContent=allResults.length?('共 '+allResults.length+' 条结果'):''
     document.getElementById('pagination').style.display = 'none'
   }
@@ -870,84 +851,54 @@ async function loadMore(){
   var stype=document.getElementById('stype').value
   var status=document.getElementById('status')
   
-  // 对于网页和视频搜索，使用手动补充功能
-  if(stype === 'web' || stype === 'videos'){
-    status.textContent='正在加载更多结果…'
-    var as=document.getElementById('appendStatus'); if(as) as.textContent='正在加载更多结果…'
-    try{
-      isLoadingMore=true
-      var nextPage=(pageByType[stype]||0)+1
-      var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:nextPage})})
-      var data=await resp.json()
-      console.log('手动补充响应数据:', data)
-      var more=(data && Array.isArray(data.results))?data.results:[]
-      console.log('解析出的结果数量:', more.length)
-      
-      if(more.length > 0){
-        allResults.push(...more)
-        pageByType[stype] = nextPage
-        renderResults()
-        status.textContent=''
-        var as=document.getElementById('appendStatus'); if(as) as.textContent=''
+  // 网页和视频搜索不需要加载更多功能
+  if(stype === 'web' || stype === 'videos') return
+  
+  status.textContent='正在加载更多结果…'
+  var as=document.getElementById('appendStatus'); if(as) as.textContent='正在加载更多结果…'
+  try{
+    isLoadingMore=true
+    var nextPage=(pageByType[stype]||0)+1
+    var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:nextPage})})
+    var data=await resp.json()
+    var more=(data && Array.isArray(data.results))?data.results:[]
+    var seen=new Set(allResults.map(function(it){
+      if(stype === 'images'){
+        // 图片搜索使用snippet作为去重键
+        return it.snippet || ''
       } else {
-        status.textContent='没有更多结果了'
-        var as=document.getElementById('appendStatus'); if(as) as.textContent='没有更多结果了'
+        // 其他搜索使用url|snippet作为去重键
+        return (it.url||'')+'|'+(it.snippet||'')
       }
-    } catch(e){
-      console.error('加载更多失败:',e)
-      status.textContent='加载失败'
-      var as=document.getElementById('appendStatus'); if(as) as.textContent='加载失败'
-    } finally{
-      isLoadingMore=false
-    }
-  } else {
-    // 其他搜索类型保持原有逻辑
-    status.textContent='正在加载更多结果…'
-    var as=document.getElementById('appendStatus'); if(as) as.textContent='正在加载更多结果…'
-    try{
-      isLoadingMore=true
-      var nextPage=(pageByType[stype]||0)+1
-      var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:nextPage})})
-      var data=await resp.json()
-      var more=(data && Array.isArray(data.results))?data.results:[]
-      var seen=new Set(allResults.map(function(it){
+    }))
+    var added=0
+    more.forEach(function(it){
+      if(it && (it.url||it.snippet)){
+        var key
         if(stype === 'images'){
           // 图片搜索使用snippet作为去重键
-          return it.snippet || ''
+          key = it.snippet || ''
         } else {
           // 其他搜索使用url|snippet作为去重键
-          return (it.url||'')+'|'+(it.snippet||'')
+          key = (it.url||'')+'|'+(it.snippet||'')
         }
-      }))
-      var added=0
-      more.forEach(function(it){
-        if(it && (it.url||it.snippet)){
-          var key
-          if(stype === 'images'){
-            // 图片搜索使用snippet作为去重键
-            key = it.snippet || ''
-          } else {
-            // 其他搜索使用url|snippet作为去重键
-            key = (it.url||'')+'|'+(it.snippet||'')
-          }
-          if(!seen.has(key)){ allResults.push(it); seen.add(key); added++ }
-        }
-      })
-      if(added>0){ pageByType[stype]=nextPage }
-      var msg = added?('已加载 '+added+' 条新结果，共 '+allResults.length+' 条 (第 '+(pageByType[stype]+1)+' 页准备中)'):'没有更多新的结果。可尝试重复补充，因特殊原因可能过于快速的补充会被网站拒绝'
-      status.textContent = msg
-      if(as) as.textContent = msg
-      renderPage()
-    }catch(e){ status.textContent='继续搜索失败' }
-    finally{ isLoadingMore=false; renderPage(); lastLoadTs=Date.now() }
-  }
+        if(!seen.has(key)){ allResults.push(it); seen.add(key); added++ }
+      }
+    })
+    if(added>0){ pageByType[stype]=nextPage }
+    var msg = added?('已加载 '+added+' 条新结果，共 '+allResults.length+' 条 (第 '+(pageByType[stype]+1)+' 页准备中)'):'没有更多新的结果。可尝试重复补充，因特殊原因可能过于快速的补充会被网站拒绝'
+    status.textContent = msg
+    if(as) as.textContent = msg
+    renderPage()
+  }catch(e){ status.textContent='继续搜索失败' }
+  finally{ isLoadingMore=false; renderPage(); lastLoadTs=Date.now() }
 }
  function maybeLoadMore(){
    var stype=document.getElementById('stype').value
    var resultsContainer = document.getElementById('results')
    if(!resultsContainer) return
    
-  // 网页和视频搜索使用翻页按钮，不使用滚动加载
+  // 网页和视频搜索不需要加载更多功能
   if(stype === 'web' || stype === 'videos') return
    
   // 检查搜索结果容器是否滚动到底部
