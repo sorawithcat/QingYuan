@@ -72,7 +72,10 @@
         "linovelib.com",
         "www.gamer520.com",
         "inarigal.com",
-        "www.flysheep6.com"
+        "www.flysheep6.com",
+        "www.88mv.org",
+        "cosplaytele.com",
+        "www.iwara.tv"
       ],
       "search_urls": {
         "bbs.3dmgame.com": [
@@ -99,6 +102,18 @@
         ],
         "www.flysheep6.com": [
           "https://www.flysheep6.com/?s={query}"
+        ],
+        "www.88mv.org": [
+          "https://www.88mv.org/search/search.php?q=pg-1-wd-{query}",
+          "https://www.88mv.org/search/search.php?q=pg-2-wd-{query}",
+          "https://www.88mv.org/search/search.php?q=pg-3-wd-{query}"
+        ],
+        "cosplaytele.com": [
+          "https://cosplaytele.com/?s={query}"
+        ],
+        "www.iwara.tv": [
+          "https://www.iwara.tv/search?query={query}&type=videos",
+          "https://www.iwara.tv/search?query={query}&type=images"
         ]
       },
       "enabled": true,
@@ -106,25 +121,81 @@
         "bbs.3dmgame.com": true,
         "www.gamer520.com": true,
         "inarigal.com": true,
-        "www.flysheep6.com": true
+        "www.flysheep6.com": true,
+        "www.88mv.org": true,
+        "ggbases.dlgal.com": true,
+        "gugu3.com": true,
+        "linovelib.com": true,
+        "cosplaytele.com": true,
+        "www.iwara.tv": true
       }
+    },
+    "游戏": {
+      "domains": [
+        "bbs.3dmgame.com",
+        "ggbases.dlgal.com",
+        "www.gamer520.com",
+        "www.flysheep6.com"
+      ],
+      "enabled": true,
+      "domain_status": {
+        "bbs.3dmgame.com": true,
+        "ggbases.dlgal.com": true,
+        "www.gamer520.com": true
+      },
+      "search_urls": {
+        "bbs.3dmgame.com": [
+          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}",
+          "https://bbs.3dmgame.com/search.php?mod=forum&searchsubmit=yes&kw={query}&srchtype=title"
+        ],
+        "ggbases.dlgal.com": [
+          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=0",
+          "https://ggbases.dlgal.com/search.so?p=0&title={query}&advanced=1"
+        ],
+        "www.gamer520.com": [
+          "https://www.gamer520.com/?s={query}"
+        ]
+      }
+    },
+    "gal": {
+      "domains": [
+        "ggbases.dlgal.com",
+        "inarigal.com"
+      ],
+      "enabled": true
+    },
+    "视频": {
+      "domains": [
+        "www.88mv.org"
+      ],
+      "enabled": true
+    },
+    "小说": {
+      "domains": [
+        "linovelib.com"
+      ],
+      "enabled": true
+    },
+    "番": {
+      "domains": [
+        "gugu3.com"
+      ],
+      "enabled": true
+    },
+    "h": {
+      "domains": [
+        "cosplaytele.com",
+        "www.iwara.tv"
+      ],
+      "enabled": true
     }
   },
   "video_sites": {
     "custom": {
-      "domains": [
-        "bilibili.com"
-      ],
+      "domains": [],
       "enabled": true,
-      "domain_status": {
-        "bilibili.com": true
-      },
-      "search_urls": {
-        "bilibili.com": [
-          "https://search.bilibili.com/video?keyword={query}",
-          "https://search.bilibili.com/video?keyword={query}&order=totalrank&duration=0&tids_1=0"
-        ]
-      }
+      "domain_status": {},
+      "search_urls": {}
     }
   },
   "image_sites": {
@@ -145,5 +216,31 @@
   "settings": {
     "engine_max_results": 35,
     "site_timeout": 10
+  },
+  "resource_categories": {
+    "游戏": {
+      "description": "",
+      "created_at": 1761194344.0532022
+    },
+    "gal": {
+      "description": "",
+      "created_at": 1761194781.3247347
+    },
+    "小说": {
+      "description": "",
+      "created_at": 1761195541.4510918
+    },
+    "番": {
+      "description": "",
+      "created_at": 1761195709.6582918
+    },
+    "视频": {
+      "description": "",
+      "created_at": 1761195716.7786472
+    },
+    "h": {
+      "description": "",
+      "created_at": 1761196764.753894
+    }
   }
 }

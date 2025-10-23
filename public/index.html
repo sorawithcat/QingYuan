@@ -503,11 +503,14 @@ select{
     <div class="bg-text">清源</div>
     <div class="row floating-bar">
       <div class="input"><input id="q" type="text" placeholder="如果搜不出可以选择少词或准确的名字，例如千恋万花其实是千恋＊万花，你也可以选择搜索千恋" onkeydown="if(event.key==='Enter'){doSearch()}"></div>
-      <select id="stype">
+      <select id="stype" onchange="toggleCategorySelector()">
         <option value="web" selected>网页</option>
         <option value="images">图片</option>
         <option value="videos">视频</option>
         <option value="files">资源</option>
+      </select>
+      <select id="category" style="display:none;">
+        <option value="">全部分类</option>
       </select>
       <button class="btn" onclick="doSearch()">搜索</button>
       <button class="btn" onclick="window.open('/admin', '_blank')">管理</button>
@@ -802,9 +805,55 @@ function onCtxAction(action){
     }
   }finally{ hideCtxMenu() }
 }
- async function doSearch(){
+ // 分类管理功能
+let categories = {};
+
+// 加载分类数据
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        categories = config.resource_categories || {};
+        updateCategorySelector();
+    } catch (error) {
+        console.error('加载分类失败:', error);
+    }
+}
+
+// 更新分类选择器
+function updateCategorySelector() {
+    const categorySelect = document.getElementById('category');
+    categorySelect.innerHTML = '<option value="">全部分类</option>';
+    
+    for (const [name, data] of Object.entries(categories)) {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        categorySelect.appendChild(option);
+    }
+}
+
+// 切换分类选择器显示
+function toggleCategorySelector() {
+    const stype = document.getElementById('stype').value;
+    const categorySelect = document.getElementById('category');
+    
+    if (stype === 'files') {
+        categorySelect.style.display = 'block';
+    } else {
+        categorySelect.style.display = 'none';
+    }
+}
+
+// 页面加载时初始化分类
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+});
+
+async function doSearch(){
    var q=document.getElementById('q').value.trim()
    var stype=document.getElementById('stype').value
+   var category = document.getElementById('category').value
    var status=document.getElementById('status')
    var box=document.getElementById('results')
      status.textContent='正在搜索…'
@@ -813,7 +862,14 @@ function onCtxAction(action){
      pageByType={web:0,images:0,videos:0,files:0}
      try{
        // 不设置数量限制，使用后端默认设置
-       var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,stype:stype,page:0})})
+       const searchParams = {q:q, stype:stype, page:0};
+       if (stype === 'files') {
+         // 对于资源搜索，总是传递分类参数
+         // 如果选择了具体分类，传递分类名；如果选择"全部分类"，传递'all'
+         searchParams.category = category || 'all';
+       }
+       
+       var resp=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(searchParams)})
        var data=await resp.json()
        allResults=(data && Array.isArray(data.results))?data.results:[]
        
@@ -825,8 +881,10 @@ function onCtxAction(action){
        
        var as=document.getElementById('appendStatus'); if(as) as.textContent=''
        renderPage()
-       // 所有搜索类型都支持触底加载
-       maybeLoadMore()
+       // 只有图片搜索支持触底加载
+       if(stype === 'images') {
+         maybeLoadMore()
+       }
      }catch(e){status.textContent='请求失败'}
  }
 // 翻页函数
@@ -898,8 +956,8 @@ async function loadMore(){
    var resultsContainer = document.getElementById('results')
    if(!resultsContainer) return
    
-  // 网页和视频搜索不需要加载更多功能
-  if(stype === 'web' || stype === 'videos') return
+  // 网页、视频和资源搜索不需要加载更多功能
+  if(stype === 'web' || stype === 'videos' || stype === 'files') return
    
   // 检查搜索结果容器是否滚动到底部
   var nearBottom = (resultsContainer.scrollTop + resultsContainer.clientHeight) >= (resultsContainer.scrollHeight - 200)

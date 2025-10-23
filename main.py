@@ -168,10 +168,11 @@ def main():
         q = (data.get('q') or '').strip()
         stype = (data.get('stype') or 'web')
         page = int(data.get('page') or 0)
+        category = data.get('category', '')  # 添加分类参数
         
         # 使用新的分离式搜索系统，所有搜索类型使用相同的结果数量
         limit = 60 
-        res = qingyuan.web_search.search(q, search_type=stype, page=page, limit=limit)
+        res = qingyuan.web_search.search(q, search_type=stype, page=page, limit=limit, category=category)
         return jsonify({"results": res})
 
     @app.get('/')
@@ -200,11 +201,12 @@ def main():
             domain = data.get('domain')
             site_type = data.get('siteType')
             search_urls = data.get('searchUrls', [])
+            category = data.get('category', 'custom')  # 添加分类参数
             
             if not domain or not site_type:
                 return jsonify({'error': '缺少必要参数'}), 400
             
-            result = qingyuan.web_search.add_site(domain, site_type, search_urls)
+            result = qingyuan.web_search.add_site(domain, site_type, search_urls, category)
             return jsonify(result)
         except Exception as e:
             return jsonify({'error': str(e)}), 500
@@ -371,6 +373,77 @@ def main():
             traceback.print_exc()
             return jsonify({'error': str(e)}), 500
 
+    @app.post('/api/config/categories')
+    def manage_categories():
+        """管理资源分类"""
+        try:
+            data = request.get_json(force=True) or {}
+            action = data.get('action')
+            name = data.get('name', '').strip()
+            description = data.get('description', '').strip()
+            sites = data.get('sites', [])  # 获取选中的网站列表
+            
+            if not name:
+                return jsonify({'error': '分类名称不能为空'}), 400
+            
+            if action == 'add':
+                # 添加分类
+                result = qingyuan.web_search.add_category(name, description)
+                
+                # 如果分类添加成功且有选中的网站，将网站添加到新分类
+                if result.get('success') and sites:
+                    for site in sites:
+                        domain = site.get('domain')
+                        if domain:
+                            # 将网站添加到新分类（支持多分类）
+                            qingyuan.web_search.add_site_to_category(domain, 'resources', name)
+                
+                return jsonify(result)
+            elif action == 'delete':
+                # 删除分类
+                result = qingyuan.web_search.delete_category(name)
+                return jsonify(result)
+            else:
+                return jsonify({'error': '无效的操作'}), 400
+                
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.post('/api/config/remove-site-from-category')
+    def remove_site_from_category():
+        """从分类中移除网站"""
+        try:
+            data = request.get_json(force=True) or {}
+            domain = data.get('domain', '').strip()
+            site_type = data.get('siteType', '')
+            category = data.get('category', '').strip()
+            
+            if not domain or not site_type or not category:
+                return jsonify({'error': '缺少必要参数'}), 400
+            
+            result = qingyuan.web_search.remove_site_from_category(domain, site_type, category)
+            return jsonify(result)
+                
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.post('/api/config/add-site-to-category')
+    def add_site_to_category():
+        """添加网站到分类"""
+        try:
+            data = request.get_json(force=True) or {}
+            domain = data.get('domain', '').strip()
+            site_type = data.get('siteType', '')
+            category = data.get('category', '').strip()
+            
+            if not domain or not site_type or not category:
+                return jsonify({'error': '缺少必要参数'}), 400
+            
+            result = qingyuan.web_search.add_site_to_category(domain, site_type, category)
+            return jsonify(result)
+                
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
     # 自动打开浏览器
     import webbrowser

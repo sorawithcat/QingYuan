@@ -16,6 +16,9 @@
             --scale-mobile: 0.875;
             --scale-tablet: 0.9375;
             --scale-desktop: 1;
+            --sidebar-bg: #1a1f2e;
+            --sidebar-border: #2a3442;
+            --content-bg: #0f151d;
         }
         
         * {
@@ -33,74 +36,243 @@
             background: linear-gradient(180deg, #0b0f14, #0e141b);
             color: var(--txt);
             min-height: 100vh;
-            padding: 1.25rem;
             font-size: var(--base-size);
+            overflow-x: hidden;
         }
         
-        .container {
-            max-width: 75rem;
-            margin: 0 auto;
-            background: rgba(18, 24, 33, 0.9);
-            border: 1px solid #2a3442;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 10;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 1.875rem;
-        }
-        
-        .header h1 {
-            color: var(--pri);
-            font-size: 2.5rem;
-            margin-bottom: 0.625rem;
-            font-weight: 700;
-        }
-        
-        .header p {
-            color: var(--muted);
-            font-size: 1.1rem;
-        }
-        
-        .tabs {
+        .admin-layout {
             display: flex;
-            margin-bottom: 1.875rem;
-            border-bottom: 2px solid #2a3442;
-            flex-wrap: wrap;
+            min-height: 100vh;
+            background: var(--bg);
         }
         
-        .tab {
-            padding: 0.9375rem 1.5625rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            color: var(--muted);
-            font-size: var(--base-size);
-            white-space: nowrap;
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
         }
         
-        .tab.active {
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+        
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--pri);
-            border-bottom-color: var(--pri);
+            margin-bottom: 0.5rem;
         }
         
-        .tab:hover {
-            background: rgba(18, 24, 33, 0.5);
+        .sidebar-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: rgba(90, 169, 255, 0.1);
             color: var(--txt);
         }
         
+        .nav-item.active {
+            background: rgba(90, 169, 255, 0.15);
+            color: var(--pri);
+            border-left-color: var(--pri);
+        }
+        
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-item-text {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .sidebar-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--sidebar-border);
+        }
+        
+        .feedback-btn {
+            width: 100%;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.375rem;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .feedback-btn:hover {
+            background: rgba(90, 169, 255, 0.1);
+            color: var(--txt);
+        }
+        
+        /* 右侧内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            background: var(--content-bg);
+            min-height: 100vh;
+        }
+        
+        .content-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--sidebar-border);
+            background: var(--card);
+        }
+        
+        .content-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--txt);
+            margin-bottom: 0.5rem;
+        }
+        
+        .content-description {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+        
+        .content-body {
+            padding: 2rem;
+        }
+        
+        .content-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--txt);
+            margin-bottom: 1rem;
+        }
+        
+        /* 页面内容切换 */
         .tab-content {
             display: none;
         }
         
         .tab-content.active {
             display: block;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--txt);
+        }
+        
+        .card-description {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 快速操作按钮 */
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action-btn {
+            padding: 0.75rem 1.5rem !important;
+            border: 1px solid var(--sidebar-border) !important;
+            border-radius: 0.5rem !important;
+            background: var(--card) !important;
+            color: var(--txt) !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            white-space: nowrap;
+            font-size: 0.9rem !important;
+        }
+        
+        .quick-action-btn:hover {
+            background: rgba(90, 169, 255, 0.1) !important;
+            border-color: var(--pri) !important;
+            color: var(--pri) !important;
         }
         
         .section {
@@ -402,36 +574,107 @@
             margin-bottom: 20px;
         }
         
-        /* 滚动条样式 - 与index.html保持一致 */
+        /* 滚动条样式 - 使用主题色 */
+        ::-webkit-scrollbar {
+            width: 0.5rem;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(18, 24, 33, 0.3);
+            border-radius: 0.25rem;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(90, 169, 255, 0.7), rgba(90, 169, 255, 0.5));
+            border-radius: 0.25rem;
+            border: 1px solid rgba(90, 169, 255, 0.1);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, rgba(90, 169, 255, 0.9), rgba(90, 169, 255, 0.7));
+        }
+        
+        /* 特定元素的滚动条样式 */
         #keywords-list::-webkit-scrollbar {
-            width: 8px;
+            width: 0.5rem;
         }
         #keywords-list::-webkit-scrollbar-track {
             background: rgba(18, 24, 33, 0.3);
-            border-radius: 4px;
+            border-radius: 0.25rem;
         }
         #keywords-list::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, rgba(135, 206, 235, 0.4), rgba(135, 206, 235, 0.2));
-            border-radius: 4px;
-            border: 1px solid rgba(135, 206, 235, 0.1);
+            background: linear-gradient(180deg, rgba(90, 169, 255, 0.7), rgba(90, 169, 255, 0.5));
+            border-radius: 0.25rem;
+            border: 1px solid rgba(90, 169, 255, 0.1);
         }
         #keywords-list::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, rgba(135, 206, 235, 0.6), rgba(135, 206, 235, 0.4));
+            background: linear-gradient(180deg, rgba(90, 169, 255, 0.9), rgba(90, 169, 255, 0.7));
         }
         
-        /* 自适应样式 - 使用rem单位 */
+        /* 移动端响应式样式 */
         @media (max-width: 768px) {
-            html{font-size: 14px;}
+            html { font-size: 14px; }
             
-            .container{padding:1.5rem;margin:0.5rem;}
-            .header h1{font-size:2rem;}
-            .header p{font-size:1rem;}
-            .tabs{flex-direction:column;gap:0.5rem;}
-            .tab{padding:0.75rem 1rem;text-align:center;}
-            .site-item{flex-direction:column;gap:1rem;align-items:stretch;}
-            .site-actions{justify-content:center;}
-            .btn{padding:0.5rem 0.75rem;font-size:0.8rem;}
-            .toast{top:1rem;right:1rem;left:1rem;max-width:none;}
+            .admin-layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--sidebar-border);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-body {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 0.75rem;
+            }
+            
+            .quick-actions {
+                flex-direction: column;
+            }
+            
+            .quick-action-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .site-item {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .site-actions {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            
+            .toast {
+                top: 1rem;
+                right: 1rem;
+                left: 1rem;
+                max-width: none;
+            }
         }
         
         @media (max-width: 480px) {
@@ -466,6 +709,198 @@
             .site-domain{font-size:0.8rem;}
             .btn{padding:0.25rem 0.5rem;font-size:0.7rem;}
             .toast{top:0.5rem;right:0.5rem;left:0.5rem;padding:0.5rem 0.75rem;font-size:0.75rem;}
+        }
+        
+        /* 网站选择样式 */
+        .site-selection {
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.5rem;
+            background: var(--card);
+            padding: 1rem;
+        }
+        
+        .site-selection-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+        
+        .site-selection-header input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            accent-color: var(--pri);
+            cursor: pointer;
+        }
+        
+        .site-selection-header label {
+            margin: 0;
+            font-weight: 500;
+            color: var(--txt);
+        }
+        
+        .selected-count {
+            margin-left: auto;
+            color: var(--pri);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .site-checkbox-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .site-checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.5rem;
+            background: var(--bg);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        
+        .site-checkbox-item:hover {
+            background: rgba(90, 169, 255, 0.1);
+            border-color: var(--pri);
+        }
+        
+        .site-checkbox-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            accent-color: var(--pri);
+            cursor: pointer;
+        }
+        
+        .site-checkbox-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+            color: var(--txt);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .site-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .site-categories {
+            font-size: 0.8rem;
+            color: var(--pri);
+            opacity: 0.8;
+            margin-left: auto;
+        }
+        
+        /* 分类项目样式 */
+        .category-item {
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.5rem;
+            background: var(--card);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .category-header:hover {
+            background: rgba(90, 169, 255, 0.1);
+        }
+        
+        .category-info {
+            flex: 1;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--txt);
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-description {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .category-count {
+            color: var(--pri);
+            font-size: 0.8rem;
+        }
+        
+        .category-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .expand-icon {
+            font-size: 0.8rem;
+            color: var(--pri);
+            transition: transform 0.2s ease;
+            margin-left: 0.5rem;
+        }
+        
+        .category-sites {
+            border-top: 1px solid var(--sidebar-border);
+            background: var(--bg);
+        }
+        
+        .sites-list {
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .site-in-category {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border: 1px solid var(--sidebar-border);
+            border-radius: 0.25rem;
+            background: var(--card);
+            margin-bottom: 0.5rem;
+        }
+        
+        .site-in-category:last-child {
+            margin-bottom: 0;
+        }
+        
+        .site-in-category .site-domain {
+            font-weight: 500;
+            color: var(--txt);
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .add-sites-section {
+            padding: 1rem;
+            border-top: 1px solid var(--sidebar-border);
+            background: var(--bg);
+            text-align: center;
         }
         
         /* 模态框样式 */
@@ -585,280 +1020,375 @@
     </style>
 </head>
 <body>
-    <div class="bg-text">清源</div>
-    <div class="container">
-        <div class="header">
-            <h1>网站管理</h1>
-            <p>管理搜索网站配置和搜索设置</p>
-        </div>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="overview">概览</div>
-            <div class="tab" data-tab="web">网页搜索</div>
-            <div class="tab" data-tab="images">图片搜索</div>
-            <div class="tab" data-tab="videos">视频搜索</div>
-            <div class="tab" data-tab="resources">资源搜索</div>
-            <div class="tab" data-tab="blacklist">黑名单</div>
-            <div class="tab" data-tab="settings">设置</div>
-        </div>
-        
-        <!-- 概览页面 -->
-        <div id="overview" class="tab-content active">
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-number" id="web-count">0</div>
-                    <div class="stat-label">网页网站</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="image-count">0</div>
-                    <div class="stat-label">图片网站</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="video-count">0</div>
-                    <div class="stat-label">视频网站</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="resource-count">0</div>
-                    <div class="stat-label">资源网站</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="blacklist-count">0</div>
-                    <div class="stat-label">黑名单</div>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>快速操作</h3>
-                <div class="site-list">
-                    <button class="btn btn-primary" onclick="refreshData()">刷新数据</button>
-                    <button class="btn btn-success" onclick="exportConfig()">导出配置</button>
-                    <button class="btn btn-warning" onclick="importConfig()">导入配置</button>
-                    <button class="btn btn-danger" onclick="resetConfig()">重置配置</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 网页搜索页面 -->
-        <div id="web" class="tab-content">
-            <div class="section">
-                <div class="info-tip">
-                    <div class="tip-content">
-                        <strong>注意：</strong>部分网站可能会遇到403错误导致无法访问。搜索速度与结果取决于设置的网站、网速和所在地区。
-                    </div>
-                </div>
-                <h3>添加网页网站</h3>
-                <div class="site-list">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>域名</label>
-                            <input type="text" id="web-domain" placeholder="例如: github.com">
-                        </div>
-                        <div class="form-group">
-                            <label>搜索URL模板（可选）</label>
-                            <input type="text" id="web-search-urls" placeholder="例如: https://github.com/search?q={query}，多个用逗号分隔">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>复制搜索链接（自动解析）</label>
-                            <input type="text" id="web-copy-url" placeholder="粘贴一个搜索链接，例如: https://github.com/search?q=python">
-                            <button class="btn btn-secondary" onclick="parseWebUrl()">解析链接</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="addWebSite()">添加网站</button>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>网页网站列表</h3>
-                <div id="web-sites" class="site-list">
-                    <div class="loading">加载中...</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 图片搜索页面 -->
-        <div id="images" class="tab-content">
-            <div class="section">
-                <div class="info-tip">
-                    <div class="tip-content">
-                        <strong>注意：</strong>图片搜索优先使用搜索引擎的图片搜索，如果结果不足会使用配置的网站补充。部分网站可能会遇到403错误导致无法访问。
-                    </div>
-                </div>
-                <h3>添加图片网站</h3>
-                <div class="site-list">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>域名</label>
-                            <input type="text" id="image-domain" placeholder="例如: unsplash.com">
-                        </div>
-                        <div class="form-group">
-                            <label>搜索URL模板（可选）</label>
-                            <input type="text" id="image-search-urls" placeholder="例如: https://unsplash.com/s/photos/{query}，多个用逗号分隔">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>复制搜索链接（自动解析）</label>
-                            <input type="text" id="image-copy-url" placeholder="粘贴一个搜索链接，例如: https://unsplash.com/s/photos/nature">
-                            <button class="btn btn-secondary" onclick="parseImageUrl()">解析链接</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="addImageSite()">添加网站</button>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>图片网站列表</h3>
-                <div id="image-sites" class="site-list">
-                    <div class="loading">加载中...</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 视频搜索页面 -->
-        <div id="videos" class="tab-content">
-            <div class="section">
-                <div class="info-tip">
-                    <div class="tip-content">
-                        <strong>注意：</strong>视频搜索主要使用搜索引擎的视频搜索功能，配置的网站主要用于补充。搜索速度与结果取决于设置的网站、网速和所在地区。
-                    </div>
-                </div>
-                <h3>添加视频网站</h3>
-                <div class="site-list">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>域名</label>
-                            <input type="text" id="video-domain" placeholder="例如: bilibili.com">
-                        </div>
-                        <div class="form-group">
-                            <label>搜索URL模板（可选）</label>
-                            <input type="text" id="video-search-urls" placeholder="例如: https://search.bilibili.com/video?keyword={query}，多个用逗号分隔">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>复制搜索链接（自动解析）</label>
-                            <input type="text" id="video-copy-url" placeholder="粘贴一个搜索链接，例如: https://search.bilibili.com/video?keyword=python">
-                            <button class="btn btn-secondary" onclick="parseVideoUrl()">解析链接</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="addVideoSite()">添加网站</button>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>视频网站列表</h3>
-                <div id="video-sites" class="site-list">
-                    <div class="loading">加载中...</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 资源搜索页面 -->
-        <div id="resources" class="tab-content">
-            <div class="section">
-                <div class="info-tip">
-                    <div class="tip-content">
-                        <strong>注意：</strong>资源搜索仅使用配置的资源网站进行直接搜索。部分网站可能会遇到403错误导致无法访问。
-                    </div>
-                </div>
-                <h3>添加资源网站</h3>
-                <div class="site-list">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>域名</label>
-                            <input type="text" id="resource-domain" placeholder="例如: pan.baidu.com">
-                        </div>
-                        <div class="form-group">
-                            <label>搜索URL模板（可选）</label>
-                            <input type="text" id="resource-search-urls" placeholder="例如: https://pan.baidu.com/s?wd={query}，多个用逗号分隔">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>复制搜索链接（自动解析）</label>
-                            <input type="text" id="resource-copy-url" placeholder="粘贴一个搜索链接，例如: https://pan.baidu.com/s/1abc123">
-                            <button class="btn btn-secondary" onclick="parseResourceUrl()">解析链接</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" onclick="addResourceSite()">添加网站</button>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>资源网站列表</h3>
-                <div id="resource-sites" class="site-list">
-                    <div class="loading">加载中...</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 黑名单页面 -->
-        <div id="blacklist" class="tab-content">
-            <div class="section">
-                <div class="info-tip">
-                    <div class="tip-content">
-                        <strong>注意：</strong>黑名单中的域名将被完全过滤，不会出现在任何搜索结果中。请谨慎添加，避免误过滤有用网站。
-                    </div>
-                </div>
-                <h3>添加黑名单</h3>
-                <div class="site-list">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>域名</label>
-                            <input type="text" id="blacklist-domain" placeholder="例如: spam.com">
-                        </div>
-                    </div>
-                    <button class="btn btn-danger" onclick="addToBlacklistManual()">添加到黑名单</button>
-                </div>
-            </div>
-            
-            <div class="section">
-                <h3>黑名单列表</h3>
-                <div id="blacklist-sites" class="site-list">
-                    <div class="loading">加载中...</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 设置页面 -->
-        <div id="settings" class="tab-content">
-            <div class="section">
-                <h3>搜索设置</h3>
-                <div class="site-list">
-                    <div class="form-group">
-                        <label>搜索URL模板管理</label>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <select id="search-url-site-type" class="form-control" style="flex: 1;">
-                                <option value="resource_sites">资源网站</option>
-                                <option value="web_sites">网页网站</option>
-                                <option value="video_sites">视频网站</option>
-                                <option value="image_sites">图片网站</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="loadSearchUrls()">加载配置</button>
-                        </div>
-                        <div id="search-urls-container" style="display: none;">
-                            <div id="search-urls-list"></div>
-                            <button class="btn btn-success" onclick="saveSearchUrls()" style="margin-top: 10px;">保存配置</button>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>每个搜索引擎最大结果数（会影响加载速度）</label>
-                        <input type="number" id="engine-max-results" value="35" min="1" max="1000">
-                        <small style="color: var(--muted);">设置每个搜索引擎返回的最大结果数，数值越大加载越慢但结果越全面</small>
-                    </div>
-                    <div class="form-group">
-                        <label>每个网站搜索超时时间（秒）</label>
-                        <input type="number" id="site-timeout" value="8" min="1" max="60">
-                        <small style="color: var(--muted);">设置每个网站搜索的超时时间，时间越长等待越久但成功率越高</small>
-                    </div>
-                    <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
-                </div>
+    <div class="admin-layout">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">网站管理</div>
+                <div class="sidebar-subtitle">管理搜索网站配置和搜索设置</div>
             </div>
             
             
+            <div class="sidebar-nav">
+                <div class="nav-item active" data-tab="overview">
+                    <div class="nav-item-icon">📊</div>
+                    <div class="nav-item-text">概览</div>
+                </div>
+                <div class="nav-item" data-tab="web">
+                    <div class="nav-item-icon">🌐</div>
+                    <div class="nav-item-text">网页搜索</div>
+                </div>
+                <div class="nav-item" data-tab="images">
+                    <div class="nav-item-icon">🖼️</div>
+                    <div class="nav-item-text">图片搜索</div>
+                </div>
+                <div class="nav-item" data-tab="videos">
+                    <div class="nav-item-icon">🎥</div>
+                    <div class="nav-item-text">视频搜索</div>
+                </div>
+                <div class="nav-item" data-tab="resources">
+                    <div class="nav-item-icon">📁</div>
+                    <div class="nav-item-text">资源搜索</div>
+                </div>
+                <div class="nav-item" data-tab="categories">
+                    <div class="nav-item-icon">🏷️</div>
+                    <div class="nav-item-text">分类管理</div>
+                </div>
+                <div class="nav-item" data-tab="blacklist">
+                    <div class="nav-item-icon">🚫</div>
+                    <div class="nav-item-text">黑名单</div>
+                </div>
+                <div class="nav-item" data-tab="settings">
+                    <div class="nav-item-icon">⚙️</div>
+                    <div class="nav-item-text">设置</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button class="feedback-btn">发送反馈</button>
+            </div>
         </div>
+        
+        <!-- 右侧内容区域 -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="content-title">概览</div>
+                <div class="content-description" id="content-description">查看系统统计信息和快速操作</div>
+            </div>
+            
+            <div class="content-body">
+                <!-- 概览页面 -->
+                <div id="overview" class="tab-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number" id="web-count">0</div>
+                            <div class="stat-label">网页网站</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="image-count">0</div>
+                            <div class="stat-label">图片网站</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="video-count">0</div>
+                            <div class="stat-label">视频网站</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="resource-count">0</div>
+                            <div class="stat-label">资源网站</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="blacklist-count">0</div>
+                            <div class="stat-label">黑名单</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">快速操作</div>
+                        </div>
+                        <div class="card-description">常用的管理操作，快速执行配置管理任务</div>
+                        <div class="quick-actions">
+                            <button class="quick-action-btn" onclick="refreshData()">刷新数据</button>
+                            <button class="quick-action-btn" onclick="exportConfig()">导出配置</button>
+                            <button class="quick-action-btn" onclick="importConfig()">导入配置</button>
+                            <button class="quick-action-btn" onclick="resetConfig()">重置配置</button>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 网页搜索页面 -->
+                <div id="web" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">添加网页网站</div>
+                        </div>
+                        <div class="card-description">
+                            <strong>注意：</strong>部分网站可能会遇到403错误导致无法访问。搜索速度与结果取决于设置的网站、网速和所在地区。
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>域名</label>
+                                <input type="text" id="web-domain" placeholder="例如: github.com">
+                            </div>
+                            <div class="form-group">
+                                <label>搜索URL模板（可选）</label>
+                                <input type="text" id="web-search-urls" placeholder="例如: https://github.com/search?q={query}，多个用逗号分隔">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>复制搜索链接（自动解析）</label>
+                                <input type="text" id="web-copy-url" placeholder="粘贴一个搜索链接，例如: https://github.com/search?q=python">
+                                <button class="btn btn-secondary" onclick="parseWebUrl()">解析链接</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addWebSite()">添加网站</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">网页网站列表</div>
+                        </div>
+                        <div id="web-sites" class="site-list">
+                            <div class="loading">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 图片搜索页面 -->
+                <div id="images" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">添加图片网站</div>
+                        </div>
+                        <div class="card-description">
+                            <strong>注意：</strong>图片搜索优先使用搜索引擎的图片搜索，如果结果不足会使用配置的网站补充。部分网站可能会遇到403错误导致无法访问。
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>域名</label>
+                                <input type="text" id="image-domain" placeholder="例如: unsplash.com">
+                            </div>
+                            <div class="form-group">
+                                <label>搜索URL模板（可选）</label>
+                                <input type="text" id="image-search-urls" placeholder="例如: https://unsplash.com/s/photos/{query}，多个用逗号分隔">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>复制搜索链接（自动解析）</label>
+                                <input type="text" id="image-copy-url" placeholder="粘贴一个搜索链接，例如: https://unsplash.com/s/photos/nature">
+                                <button class="btn btn-secondary" onclick="parseImageUrl()">解析链接</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addImageSite()">添加网站</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">图片网站列表</div>
+                        </div>
+                        <div id="image-sites" class="site-list">
+                            <div class="loading">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 视频搜索页面 -->
+                <div id="videos" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">添加视频网站</div>
+                        </div>
+                        <div class="card-description">
+                            <strong>注意：</strong>视频搜索主要使用搜索引擎的视频搜索功能，配置的网站主要用于补充。搜索速度与结果取决于设置的网站、网速和所在地区。
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>域名</label>
+                                <input type="text" id="video-domain" placeholder="例如: bilibili.com">
+                            </div>
+                            <div class="form-group">
+                                <label>搜索URL模板（可选）</label>
+                                <input type="text" id="video-search-urls" placeholder="例如: https://search.bilibili.com/video?keyword={query}，多个用逗号分隔">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>复制搜索链接（自动解析）</label>
+                                <input type="text" id="video-copy-url" placeholder="粘贴一个搜索链接，例如: https://search.bilibili.com/video?keyword=python">
+                                <button class="btn btn-secondary" onclick="parseVideoUrl()">解析链接</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addVideoSite()">添加网站</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">视频网站列表</div>
+                        </div>
+                        <div id="video-sites" class="site-list">
+                            <div class="loading">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 资源搜索页面 -->
+                <div id="resources" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">添加资源网站</div>
+                        </div>
+                        <div class="card-description">
+                            <strong>注意：</strong>资源搜索仅使用配置的资源网站进行直接搜索。部分网站可能会遇到403错误导致无法访问。
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>域名</label>
+                                <input type="text" id="resource-domain" placeholder="例如: pan.baidu.com">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>搜索URL模板（可选）</label>
+                                <input type="text" id="resource-search-urls" placeholder="例如: https://pan.baidu.com/s?wd={query}，多个用逗号分隔">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>复制搜索链接（自动解析）</label>
+                                <input type="text" id="resource-copy-url" placeholder="粘贴一个搜索链接，例如: https://pan.baidu.com/s/1abc123">
+                                <button class="btn btn-secondary" onclick="parseResourceUrl()">解析链接</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="addResourceSite()">添加网站</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">资源网站列表</div>
+                        </div>
+                        <div id="resource-sites" class="site-list">
+                            <div class="loading">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 分类管理页面 -->
+                <div id="categories" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">资源分类管理</div>
+                        </div>
+                        <div class="card-description">管理资源网站的分类，可以创建自定义分类来更好地组织网站</div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>分类名称</label>
+                                <input type="text" id="category-name" placeholder="例如: 游戏、图书、视频">
+                            </div>
+                            <div class="form-group">
+                                <label>分类描述（可选）</label>
+                                <input type="text" id="category-description" placeholder="例如: 游戏相关资源">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>选择网站（可选）</label>
+                            <div class="site-selection">
+                                <div class="site-selection-header">
+                                    <input type="checkbox" id="select-all-sites" onchange="toggleAllSites()">
+                                    <label for="select-all-sites">全选</label>
+                                    <span class="selected-count">已选择 0 个网站</span>
+                                </div>
+                                <div id="available-sites" class="site-checkbox-list">
+                                    <div class="loading">加载中...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="addCategory()">添加分类</button>
+                        
+                        <div style="margin-top: 1rem;">
+                            <h4 style="color: var(--txt); margin-bottom: 0.5rem;">现有分类</h4>
+                            <div id="categories-list" class="site-list">
+                                <div class="loading">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 黑名单页面 -->
+                <div id="blacklist" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">添加黑名单</div>
+                        </div>
+                        <div class="card-description">
+                            <strong>注意：</strong>黑名单中的域名将被完全过滤，不会出现在任何搜索结果中。请谨慎添加，避免误过滤有用网站。
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>域名</label>
+                                <input type="text" id="blacklist-domain" placeholder="例如: spam.com">
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" onclick="addToBlacklistManual()">添加到黑名单</button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">黑名单列表</div>
+                        </div>
+                        <div id="blacklist-sites" class="site-list">
+                            <div class="loading">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 设置页面 -->
+                <div id="settings" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">搜索设置</div>
+                        </div>
+                        <div class="card-description">配置搜索参数和系统设置</div>
+                        
+                        <div class="form-group">
+                            <label>搜索URL模板管理</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <select id="search-url-site-type" class="form-control" style="flex: 1;">
+                                    <option value="resource_sites">资源网站</option>
+                                    <option value="web_sites">网页网站</option>
+                                    <option value="video_sites">视频网站</option>
+                                    <option value="image_sites">图片网站</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="loadSearchUrls()">加载配置</button>
+                            </div>
+                            <div id="search-urls-container" style="display: none;">
+                                <div id="search-urls-list"></div>
+                                <button class="btn btn-success" onclick="saveSearchUrls()" style="margin-top: 10px;">保存配置</button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>每个搜索引擎最大结果数（会影响加载速度）</label>
+                            <input type="number" id="engine-max-results" value="35" min="1" max="1000">
+                            <small style="color: var(--muted);">设置每个搜索引擎返回的最大结果数，数值越大加载越慢但结果越全面</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>每个网站搜索超时时间（秒）</label>
+                            <input type="number" id="site-timeout" value="8" min="1" max="60">
+                            <small style="color: var(--muted);">设置每个网站搜索的超时时间，时间越长等待越久但成功率越高</small>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <script>
@@ -924,25 +1454,45 @@
             })
             
             loadConfig();
-            setupTabs();
+            setupNavigation();
         });
         
-        // 设置标签页
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab');
+        // 设置导航
+        function setupNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
             const contents = document.querySelectorAll('.tab-content');
             
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
+            // 页面标题和描述映射
+            const pageInfo = {
+                'overview': { title: '概览', description: '查看系统统计信息和快速操作' },
+                'web': { title: '网页搜索', description: '管理网页搜索网站配置' },
+                'images': { title: '图片搜索', description: '管理图片搜索网站配置' },
+                'videos': { title: '视频搜索', description: '管理视频搜索网站配置' },
+                'resources': { title: '资源搜索', description: '管理资源搜索网站配置' },
+                'categories': { title: '分类管理', description: '管理资源网站的分类和标签' },
+                'blacklist': { title: '黑名单', description: '管理被屏蔽的网站域名' },
+                'settings': { title: '设置', description: '配置搜索参数和系统设置' }
+            };
+            
+            navItems.forEach(navItem => {
+                navItem.addEventListener('click', function() {
                     const targetTab = this.getAttribute('data-tab');
                     
                     // 移除所有活动状态
-                    tabs.forEach(t => t.classList.remove('active'));
+                    navItems.forEach(n => n.classList.remove('active'));
                     contents.forEach(c => c.classList.remove('active'));
                     
                     // 添加活动状态
                     this.classList.add('active');
                     document.getElementById(targetTab).classList.add('active');
+                    
+                    // 更新页面标题和描述
+                    const info = pageInfo[targetTab];
+                    if (info) {
+                        document.getElementById('content-title').textContent = info.title;
+                        document.getElementById('content-description').textContent = info.description;
+                    }
+                    
                     
                     // 加载对应数据
                     if (targetTab !== 'overview') {
@@ -954,7 +1504,7 @@
         
         // 重新加载当前标签页的网站列表
         function loadSites() {
-            const currentTab = document.querySelector('.tab.active');
+            const currentTab = document.querySelector('.nav-item.active');
             if (currentTab) {
                 const tabName = currentTab.getAttribute('data-tab');
                 loadTabData(tabName);
@@ -975,6 +1525,7 @@
                 loadVideoSites();
                 loadResourceSites();
                 loadBlacklist();
+                loadAvailableSites(); // 加载可用网站列表
             } catch (error) {
                 console.error('加载配置失败:', error);
                 showError('加载配置失败');
@@ -1030,6 +1581,10 @@
                     break;
                 case 'resources':
                     loadResourceSites();
+                    break;
+                case 'categories':
+                    loadCategories();
+                    loadAvailableSites();
                     break;
                 case 'blacklist':
                     loadBlacklist();
@@ -1115,23 +1670,50 @@
             const container = document.getElementById('resource-sites');
             container.innerHTML = '';
             
-            if (!config.resource_sites) {
+            if (!config.resource_sites || !config.resource_sites.custom) {
                 container.innerHTML = '<div class="loading">暂无资源网站</div>';
                 return;
             }
             
-            for (const [category, data] of Object.entries(config.resource_sites)) {
-                if (data.domains) {
-                    data.domains.forEach(domain => {
-                        // 检查域名是否有独立状态，否则使用分类默认状态
-                        const domainStatus = data.domain_status && data.domain_status[domain] !== undefined 
-                            ? data.domain_status[domain] 
-                            : data.enabled;
-                        const item = createSiteItem(domain, category, domainStatus, 'resources');
-                        container.appendChild(item);
-                    });
-                }
+            // 只从custom分类（主分类）加载资源网站
+            const customData = config.resource_sites.custom;
+            if (customData.domains) {
+                customData.domains.forEach(domain => {
+                    // 检查域名是否有独立状态，否则使用分类默认状态
+                    const domainStatus = customData.domain_status && customData.domain_status[domain] !== undefined 
+                        ? customData.domain_status[domain] 
+                        : customData.enabled;
+                    const item = createResourceSiteItem(domain, 'custom', domainStatus, 'resources');
+                    container.appendChild(item);
+                });
             }
+        }
+        
+        // 创建资源网站项目（带分类显示）
+        function createResourceSiteItem(domain, category, enabled, siteType) {
+            const item = document.createElement('div');
+            item.className = 'site-item';
+            item.innerHTML = `
+                <div class="site-info">
+                    <div class="site-domain">${domain}</div>
+                    <div class="site-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="www-prefix-${domain.replace(/\./g, '-')}" onchange="toggleWwwPrefix('${domain}', '${siteType}')">
+                            <span>访问时添加www前缀</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="site-actions">
+                    <button class="btn btn-info" onclick="visitSite('${domain}')">访问</button>
+                    <button class="btn btn-primary" onclick="editSite('${domain}', '${siteType}')">修改</button>
+                    <button class="btn btn-warning" onclick="addToBlacklist('${domain}')">添加至黑名单</button>
+                    <button class="btn ${enabled ? 'btn-warning' : 'btn-success'}" onclick="toggleSite('${domain}', '${siteType}', ${!enabled})">
+                        ${enabled ? '禁用' : '启用'}
+                    </button>
+                    <button class="btn btn-danger" onclick="removeSite('${domain}', '${siteType}')">删除</button>
+                </div>
+            `;
+            return item;
         }
         
         // 加载黑名单
@@ -1327,7 +1909,6 @@
         // 添加资源网站
         async function addResourceSite() {
             const domain = document.getElementById('resource-domain').value.trim();
-            const category = 'custom';
             const searchUrls = document.getElementById('resource-search-urls').value.trim();
             
             if (!domain) {
@@ -1342,7 +1923,7 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
-                        domain, siteType: 'resources', searchUrls: searchUrlList
+                        domain, siteType: 'resources', category: 'custom', searchUrls: searchUrlList
                     })
                 });
                 
@@ -1357,6 +1938,7 @@
                         }
                         await loadConfig();
                         loadResourceSites();
+                        loadCategories();
                         clearForm('resource');
                     } else {
                         showError(result.message);
@@ -1366,6 +1948,447 @@
                 }
             } catch (error) {
                 showError('添加失败');
+            }
+        }
+        
+        // 获取选中的网站
+        function getSelectedSites() {
+            const checkboxes = document.querySelectorAll('#available-sites input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => ({
+                domain: cb.value,
+                name: cb.nextElementSibling.textContent
+            }));
+        }
+        
+        // 全选/取消全选网站
+        function toggleAllSites() {
+            const selectAll = document.getElementById('select-all-sites');
+            const checkboxes = document.querySelectorAll('#available-sites input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            
+            updateSelectedCount();
+        }
+        
+        // 更新选中数量显示
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('#available-sites input[type="checkbox"]:checked').length;
+            const totalCount = document.querySelectorAll('#available-sites input[type="checkbox"]').length;
+            document.querySelector('.selected-count').textContent = `已选择 ${selectedCount} 个网站`;
+            
+            // 更新全选状态
+            const selectAll = document.getElementById('select-all-sites');
+            if (selectedCount === 0) {
+                selectAll.checked = false;
+                selectAll.indeterminate = false;
+            } else if (selectedCount === totalCount) {
+                selectAll.checked = true;
+                selectAll.indeterminate = false;
+            } else {
+                selectAll.checked = false;
+                selectAll.indeterminate = true;
+            }
+        }
+        
+        // 加载可用网站列表
+        async function loadAvailableSites() {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const resourceSites = config.resource_sites || {};
+                const sitesMap = new Map();
+                
+                // 收集所有资源网站及其分类信息
+                for (const [category, categoryConfig] of Object.entries(resourceSites)) {
+                    if (categoryConfig.domains) {
+                        for (const domain of categoryConfig.domains) {
+                            if (!sitesMap.has(domain)) {
+                                sitesMap.set(domain, {
+                                    domain: domain,
+                                    name: domain,
+                                    categories: []
+                                });
+                            }
+                            sitesMap.get(domain).categories.push(category);
+                        }
+                    }
+                }
+                
+                // 渲染网站选择列表
+                const container = document.getElementById('available-sites');
+                const sites = Array.from(sitesMap.values());
+                
+                if (sites.length === 0) {
+                    container.innerHTML = '<div class="loading">暂无可用网站</div>';
+                    return;
+                }
+                
+                container.innerHTML = sites.map(site => `
+                    <div class="site-checkbox-item">
+                        <input type="checkbox" value="${site.domain}" onchange="updateSelectedCount()">
+                        <label>
+                            <span class="site-name">${site.name}</span>
+                            <span class="site-categories">已分类: ${site.categories.join(', ')}</span>
+                        </label>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('加载网站列表失败:', error);
+                document.getElementById('available-sites').innerHTML = '<div class="loading">加载失败</div>';
+            }
+        }
+        
+        // 添加分类
+        async function addCategory() {
+            const name = document.getElementById('category-name').value.trim();
+            const description = document.getElementById('category-description').value.trim();
+            
+            if (!name) {
+                showError('请输入分类名称');
+                return;
+            }
+            
+            // 获取选中的网站
+            const selectedSites = getSelectedSites();
+            
+            try {
+                const response = await fetch('/api/config/categories', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name, description, action: 'add', sites: selectedSites
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        showSuccess('分类添加成功');
+                        await loadConfig();
+                        loadCategories();
+                        loadAvailableSites(); // 重新加载网站列表
+                        document.getElementById('category-name').value = '';
+                        document.getElementById('category-description').value = '';
+                        // 清空选择
+                        document.querySelectorAll('#available-sites input[type="checkbox"]').forEach(cb => cb.checked = false);
+                        updateSelectedCount();
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('添加失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 切换分类展开/收起
+        function toggleCategory(name) {
+            const sitesDiv = document.getElementById(`sites-${name}`);
+            const expandIcon = document.getElementById(`expand-${name}`);
+            
+            if (sitesDiv.style.display === 'none') {
+                sitesDiv.style.display = 'block';
+                expandIcon.textContent = '▲';
+                expandIcon.style.transform = 'rotate(180deg)';
+            } else {
+                sitesDiv.style.display = 'none';
+                expandIcon.textContent = '▼';
+                expandIcon.style.transform = 'rotate(0deg)';
+            }
+        }
+        
+        // 从分类中移除网站
+        async function removeSiteFromCategory(domain, categoryName) {
+            if (!confirm(`确定要从分类 "${categoryName}" 中移除网站 "${domain}" 吗？`)) return;
+            
+            try {
+                const response = await fetch('/api/config/remove-site-from-category', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        domain: domain,
+                        siteType: 'resources',
+                        category: categoryName
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    showSuccess('网站已从分类中移除');
+                    await loadConfig();
+                    loadCategories();
+                    loadAvailableSites();
+                } else {
+                    showError(result.message || '移除失败');
+                }
+            } catch (error) {
+                showError('移除失败');
+            }
+        }
+        
+        // 显示添加网站到分类的模态框
+        function showAddSitesModal(categoryName) {
+            // 创建模态框
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>添加网站到分类 "${categoryName}"</h3>
+                        <button class="close-btn" onclick="closeModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="site-selection">
+                            <div class="site-selection-header">
+                                <input type="checkbox" id="modal-select-all-sites" onchange="toggleModalAllSites()">
+                                <label for="modal-select-all-sites">全选</label>
+                            </div>
+                            <div id="modal-available-sites" class="site-checkbox-list">
+                                <div class="loading">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                        <button class="btn btn-primary" onclick="addSitesToCategory('${categoryName}')">添加</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // 加载可用的网站（排除已在分类中的网站）
+            loadModalAvailableSites(categoryName);
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.querySelector('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 加载模态框中的可用网站列表
+        async function loadModalAvailableSites(categoryName) {
+            try {
+                const response = await fetch('/api/config');
+                const config = await response.json();
+                
+                const resourceSites = config.resource_sites || {};
+                const currentCategorySites = resourceSites[categoryName]?.domains || [];
+                const sitesMap = new Map();
+                
+                // 收集所有资源网站及其分类信息
+                for (const [category, categoryConfig] of Object.entries(resourceSites)) {
+                    if (categoryConfig.domains) {
+                        for (const domain of categoryConfig.domains) {
+                            if (!sitesMap.has(domain)) {
+                                sitesMap.set(domain, {
+                                    domain: domain,
+                                    name: domain,
+                                    categories: []
+                                });
+                            }
+                            sitesMap.get(domain).categories.push(category);
+                        }
+                    }
+                }
+                
+                // 过滤掉已在当前分类中的网站
+                const availableSites = Array.from(sitesMap.values()).filter(site => 
+                    !currentCategorySites.includes(site.domain)
+                );
+                
+                // 渲染网站选择列表
+                const container = document.getElementById('modal-available-sites');
+                if (availableSites.length === 0) {
+                    container.innerHTML = '<div class="loading">暂无可用网站</div>';
+                    return;
+                }
+                
+                container.innerHTML = availableSites.map(site => `
+                    <div class="site-checkbox-item">
+                        <input type="checkbox" value="${site.domain}" onchange="updateModalSelectedCount()">
+                        <label>
+                            <span class="site-name">${site.name}</span>
+                            <span class="site-categories">已分类: ${site.categories.join(', ')}</span>
+                        </label>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('加载网站列表失败:', error);
+                document.getElementById('modal-available-sites').innerHTML = '<div class="loading">加载失败</div>';
+            }
+        }
+        
+        // 全选/取消全选模态框中的网站
+        function toggleModalAllSites() {
+            const selectAll = document.getElementById('modal-select-all-sites');
+            const checkboxes = document.querySelectorAll('#modal-available-sites input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+            
+            updateModalSelectedCount();
+        }
+        
+        // 更新模态框中全选状态
+        function updateModalSelectedCount() {
+            const selectedCount = document.querySelectorAll('#modal-available-sites input[type="checkbox"]:checked').length;
+            const totalCount = document.querySelectorAll('#modal-available-sites input[type="checkbox"]').length;
+            
+            // 更新全选状态
+            const selectAll = document.getElementById('modal-select-all-sites');
+            if (selectAll) {
+                if (selectedCount === 0) {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = false;
+                } else if (selectedCount === totalCount) {
+                    selectAll.checked = true;
+                    selectAll.indeterminate = false;
+                } else {
+                    selectAll.checked = false;
+                    selectAll.indeterminate = true;
+                }
+            }
+        }
+        
+        // 添加网站到分类
+        async function addSitesToCategory(categoryName) {
+            const selectedSites = getModalSelectedSites();
+            
+            if (selectedSites.length === 0) {
+                showError('请选择要添加的网站');
+                return;
+            }
+            
+            try {
+                let successCount = 0;
+                for (const site of selectedSites) {
+                    const response = await fetch('/api/config/add-site-to-category', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            domain: site.domain,
+                            siteType: 'resources',
+                            category: categoryName
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        successCount++;
+                    }
+                }
+                
+                if (successCount > 0) {
+                    showSuccess(`成功添加 ${successCount} 个网站到分类`);
+                    closeModal();
+                    await loadConfig();
+                    loadCategories();
+                    loadAvailableSites();
+                } else {
+                    showError('添加失败');
+                }
+            } catch (error) {
+                showError('添加失败');
+            }
+        }
+        
+        // 获取模态框中选中的网站
+        function getModalSelectedSites() {
+            const checkboxes = document.querySelectorAll('#modal-available-sites input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => ({
+                domain: cb.value,
+                name: cb.nextElementSibling.textContent
+            }));
+        }
+        
+        // 删除分类
+        async function deleteCategory(categoryName) {
+            if (!confirm(`确定要删除分类 "${categoryName}" 吗？这将影响该分类下的所有网站。`)) return;
+            
+            try {
+                const response = await fetch('/api/config/categories', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        name: categoryName, action: 'delete'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    if (result.success) {
+                        showSuccess('分类删除成功');
+                        await loadConfig();
+                        loadCategories();
+                        loadResourceSites();
+                    } else {
+                        showError(result.message);
+                    }
+                } else {
+                    showError('删除失败: ' + (result.error || '未知错误'));
+                }
+            } catch (error) {
+                showError('删除失败');
+            }
+        }
+        
+        // 加载分类列表
+        function loadCategories() {
+            const container = document.getElementById('categories-list');
+            
+            if (!config.resource_categories) {
+                container.innerHTML = '<div class="loading">暂无分类</div>';
+                return;
+            }
+            
+            // 更新分类列表显示
+            container.innerHTML = '';
+            for (const [name, data] of Object.entries(config.resource_categories)) {
+                // 计算该分类中的网站数量
+                const categorySites = config.resource_sites?.[name]?.domains || [];
+                const siteCount = categorySites.length;
+                
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory('${name}')">
+                        <div class="category-info">
+                            <div class="category-name">${name}</div>
+                            <div class="category-description">${data.description || '无描述'}</div>
+                            <div class="category-count">包含 ${siteCount} 个网站</div>
+                        </div>
+                        <div class="category-actions">
+                            <button class="btn btn-primary" onclick="showAddSitesModal('${name}')">添加网站</button>
+                            <button class="btn btn-danger" onclick="deleteCategory('${name}')">删除</button>
+                            <span class="expand-icon" id="expand-${name}">▼</span>
+                        </div>
+                    </div>
+                    <div class="category-sites" id="sites-${name}" style="display: none;">
+                        <div class="sites-list">
+                            ${categorySites.map(domain => `
+                                <div class="site-in-category">
+                                    <span class="site-domain">${domain}</span>
+                                    <button class="btn btn-sm btn-danger" onclick="removeSiteFromCategory('${domain}', '${name}')">移除</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
             }
         }
         
@@ -1414,7 +2437,7 @@
                     await loadConfig();
                     console.log('重新加载后的config:', config);
                     console.log('web_sites domain_status:', config.web_sites?.custom?.domain_status);
-                    const currentTab = document.querySelector('.tab.active');
+                    const currentTab = document.querySelector('.nav-item.active');
                     if (currentTab) {
                         const tabName = currentTab.getAttribute('data-tab');
                         console.log('重新加载标签:', tabName);
@@ -1445,7 +2468,7 @@
                     showSuccess('删除成功');
                     // 重新加载配置并更新界面
                     await loadConfig();
-                    const currentTab = document.querySelector('.tab.active');
+                    const currentTab = document.querySelector('.nav-item.active');
                     if (currentTab) {
                         const tabName = currentTab.getAttribute('data-tab');
                         loadTabData(tabName);

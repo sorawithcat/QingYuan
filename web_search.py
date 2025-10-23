@@ -61,7 +61,7 @@ class BaseSearch:
         self.forbidden_domains = set()  # 403错误域名黑名单
         
         # 基础配置
-        self.request_timeout = 10  # 超时时间10秒
+        self.request_timeout = self.config.get("settings", {}).get("site_timeout", 10)  # 从配置文件读取超时时间
         
         # 正则表达式
         self.file_ext_regex = re.compile(r"\.(pdf|docx?|pptx?|xlsx?)($|\?|#)", re.I)
@@ -972,7 +972,7 @@ class WebSearch(BaseSearch):
         print(f"[DEBUG] 多页搜索完成，共获得 {len(all_results)} 条结果")
         return all_results
 
-    def _search_site_concurrent(self, site_info: Dict[str, Any], query: str, page: int = 0) -> List[Dict[str, Any]]:
+    def _search_site_concurrent(self, site_info: Dict[str, Any], query: str, page: int = 0, timeout: int = None) -> List[Dict[str, Any]]:
         """并发搜索单个网站
         
         Args:
@@ -1002,7 +1002,8 @@ class WebSearch(BaseSearch):
             direct_results = self._search_sogou(query, page)
         else:
             # 其他网站使用配置的搜索URL
-            direct_results = self._search_web_site(domain, query, search_urls, timeout=8)
+            timeout_value = timeout if timeout is not None else self.request_timeout
+            direct_results = self._search_web_site(domain, query, search_urls, timeout=timeout_value)
         
         # 对直接访问结果进行分数计算（不过滤任何结果）
         scored_results = []
@@ -1035,7 +1036,7 @@ class WebSearch(BaseSearch):
             with ThreadPoolExecutor(max_workers=min(len(sites), 4)) as executor:
                 # 提交所有搜索任务
                 future_to_site = {
-                    executor.submit(self._search_site_concurrent, site_info, query, page): site_info 
+                    executor.submit(self._search_site_concurrent, site_info, query, page, timeout_per_site): site_info 
                     for site_info in sites
                 }
                 
@@ -1527,9 +1528,36 @@ class ImageSearch(BaseSearch):
         results = []
         
         try:
-            # 使用Bing图片搜索
-            bing_results = self._search_bing(query, page)
-            results.extend(bing_results)
+            # 1. 搜索配置的图片网站
+            sites = self._get_sites_by_type('images')
+            print(f"[DEBUG] 找到 {len(sites)} 个图片网站: {[site['domain'] for site in sites]}")
+            timeout_per_site = self.config.get("settings", {}).get("site_timeout", 8)
+            
+            for i, site_info in enumerate(sites, 1):
+                domain = site_info["domain"]
+                search_urls = site_info.get("search_urls", [])
+                
+                print(f"[DEBUG] 开始搜索图片网站 ({i}/{len(sites)}): {domain}")
+                
+                if search_urls:
+                    # 有直接搜索URL的图片网站
+                    print(f"[DEBUG] {domain} 使用直接搜索URL: {search_urls}")
+                    direct_results = self._search_direct_site(domain, query, search_urls, timeout_per_site)
+                    results.extend(direct_results)
+                    print(f"[DEBUG] {domain} 直接访问返回: {len(direct_results)} 条结果")
+                else:
+                    # 没有搜索URL，尝试直接访问首页
+                    print(f"[DEBUG] {domain} 没有搜索URL，尝试直接访问")
+                    direct_results = self._search_direct_site(domain, query, [f"https://{domain}/"], timeout_per_site)
+                    results.extend(direct_results)
+                    print(f"[DEBUG] {domain} 直接访问返回: {len(direct_results)} 条结果")
+            
+            # 2. 如果配置的网站没有结果，使用Bing作为备用
+            if not results:
+                print(f"[DEBUG] 配置的图片网站无结果，使用Bing搜索")
+                bing_results = self._search_bing(query, page)
+                results.extend(bing_results)
+                print(f"[DEBUG] Bing图片搜索返回: {len(bing_results)} 条结果")
             
             # 去重（基于图片URL）
             seen = set()
@@ -1541,6 +1569,7 @@ class ImageSearch(BaseSearch):
                     seen.add(snippet)
                     dedup.append(item)
             
+            print(f"[DEBUG] 图片搜索完成，共 {len(dedup)} 条结果")
             return dedup
             
         except Exception as e:
@@ -1548,6 +1577,118 @@ class ImageSearch(BaseSearch):
             traceback.print_exc()
             return []
     
+    def _get_sites_by_type(self, stype: str) -> List[Dict[str, Any]]:
+        """获取指定类型的网站列表"""
+        sites = []
+        
+        if stype == 'images':
+            # 图片搜索
+            for category, config in self.config.get("image_sites", {}).items():
+                if config.get("enabled", True):
+                    for domain in config.get("domains", []):
+                        # 检查单个域名的禁用状态
+                        domain_status = config.get("domain_status", {})
+                        if domain in domain_status and not domain_status[domain]:
+                            print(f"[DEBUG] 跳过禁用的图片网站: {domain}")
+                            continue
+                        
+                        search_urls = config.get("search_urls", {}).get(domain, [])
+                        sites.append({
+                            "domain": domain,
+                            "category": category,
+                            "search_urls": search_urls
+                        })
+                        print(f"[DEBUG] 添加图片网站: {domain}, 搜索URL: {len(search_urls)} 个")
+        
+        return sites
+
+    def _search_direct_site(self, domain: str, query: str, search_urls: List[str], timeout: int = 8) -> List[Dict[str, Any]]:
+        """直接访问网站搜索图片"""
+        results = []
+        
+        for search_url in search_urls:
+            try:
+                # 替换查询参数
+                url = search_url.replace('{query}', quote(query))
+                print(f"[DEBUG] 直接访问: {url}")
+                
+                # 创建会话
+                session = requests.Session()
+                session.headers.update({
+                    'User-Agent': random.choice(self.USER_AGENTS),
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+                    'Accept-Encoding': 'gzip, deflate',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1',
+                })
+                
+                # 发送请求
+                response = session.get(url, timeout=timeout, verify=False)
+                print(f"[DEBUG] 请求URL: {url}")
+                print(f"[DEBUG] 响应状态: {response.status_code}, 内容长度: {len(response.content)}")
+                
+                if response.status_code == 200:
+                    soup = BeautifulSoup(response.content, 'html.parser')
+                    site_results = self._parse_site_images(soup, query, domain)
+                    results.extend(site_results)
+                    print(f"[DEBUG] {domain} 直接访问返回: {len(site_results)} 条结果")
+                else:
+                    print(f"[DEBUG] 请求失败，状态码: {response.status_code}")
+                    
+            except Exception as e:
+                print(f"[DEBUG] {domain} 直接访问失败: {e}")
+                continue
+        
+        return results
+
+    def _parse_site_images(self, soup: BeautifulSoup, query: str, domain: str) -> List[Dict[str, Any]]:
+        """解析网站图片结果"""
+        results = []
+        
+        # 查找所有图片元素
+        img_elements = soup.find_all(['img', 'a'])
+        
+        for element in img_elements:
+            try:
+                # 获取图片URL
+                img_url = None
+                if element.name == 'img':
+                    img_url = element.get('src') or element.get('data-src') or element.get('data-original')
+                elif element.name == 'a':
+                    href = element.get('href', '')
+                    if any(ext in href.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']):
+                        img_url = href
+                
+                if not img_url:
+                    continue
+                
+                # 处理相对URL
+                if img_url.startswith('//'):
+                    img_url = 'https:' + img_url
+                elif img_url.startswith('/'):
+                    img_url = f"https://{domain}{img_url}"
+                elif not img_url.startswith('http'):
+                    img_url = f"https://{domain}/{img_url}"
+                
+                # 获取标题
+                title = element.get('alt', '') or element.get('title', '') or query
+                
+                # 检查是否是有效的图片内容
+                if self._is_image_content(img_url, title):
+                    results.append({
+                        'title': title,
+                        'url': img_url,
+                        'snippet': img_url,
+                        'source': domain
+                    })
+                    
+            except Exception as e:
+                print(f"[DEBUG] 解析图片元素失败: {e}")
+                continue
+        
+        return results
+
     def get_all_sites(self) -> Dict[str, Any]:
         """获取所有网站配置"""
         return self.config
@@ -2347,7 +2488,7 @@ class ResourceSearch(BaseSearch):
         
         return results
 
-    def _get_sites_by_type(self, stype: str) -> List[Dict[str, Any]]:
+    def _get_sites_by_type(self, stype: str, category: str = '') -> List[Dict[str, Any]]:
         """获取指定类型的网站列表"""
         sites = []
         
@@ -2356,25 +2497,53 @@ class ResourceSearch(BaseSearch):
             resource_sites = self.config.get("resource_sites", {})
             print(f"[DEBUG] 配置中的资源站点类别: {list(resource_sites.keys())}")
             
-            for category, config in resource_sites.items():
-                print(f"[DEBUG] 处理资源类别: {category}, 启用状态: {config.get('enabled', True)}")
+            # 如果指定了分类，只搜索该分类的网站
+            if category and category != 'all':
+                if category in resource_sites:
+                    categories_to_search = [category]
+                    print(f"[DEBUG] 按分类过滤: {category}")
+                else:
+                    print(f"[DEBUG] 分类 {category} 不存在，返回空结果")
+                    return []
+            else:
+                # 搜索所有分类（包括category为空或'all'的情况）
+                categories_to_search = list(resource_sites.keys())
+                print(f"[DEBUG] 搜索所有分类: {categories_to_search}")
+            
+            # 获取custom分类的URL和状态信息（主配置）
+            custom_config = resource_sites.get("custom", {})
+            custom_search_urls = custom_config.get("search_urls", {})
+            custom_domain_status = custom_config.get("domain_status", {})
+            
+            # 使用集合来避免重复搜索同一个网站
+            processed_domains = set()
+            
+            for category_name in categories_to_search:
+                config = resource_sites[category_name]
+                print(f"[DEBUG] 处理资源类别: {category_name}, 启用状态: {config.get('enabled', True)}")
                 if config.get("enabled", True):
                     domains = config.get("domains", [])
-                    print(f"[DEBUG] {category} 类别下的域名: {domains}")
+                    print(f"[DEBUG] {category_name} 类别下的域名: {domains}")
                     for domain in domains:
-                        # 检查单个域名的禁用状态
-                        domain_status = config.get("domain_status", {})
-                        if domain in domain_status and not domain_status[domain]:
+                        # 避免重复搜索同一个网站
+                        if domain in processed_domains:
+                            print(f"[DEBUG] 跳过已处理的网站: {domain}")
+                            continue
+                        
+                        # 从custom分类中获取域名的禁用状态
+                        if domain in custom_domain_status and not custom_domain_status[domain]:
                             print(f"[DEBUG] 跳过禁用的资源网站: {domain}")
                             continue
                         
-                        search_urls = config.get("search_urls", {}).get(domain, [])
+                        # 从custom分类中获取搜索URL
+                        search_urls = custom_search_urls.get(domain, [])
                         print(f"[DEBUG] 添加资源网站: {domain}, 搜索URL数量: {len(search_urls)}")
                         sites.append({
                             "domain": domain,
-                            "category": category,
+                            "category": category_name,
                             "search_urls": search_urls
                         })
+                        processed_domains.add(domain)
         
         return sites
 
@@ -2410,7 +2579,7 @@ class ResourceSearch(BaseSearch):
         
         return results
 
-    def search(self, query: str, page: int = 0, limit: Optional[int] = None) -> List[Dict[str, Any]]:
+    def search(self, query: str, page: int = 0, limit: Optional[int] = None, category: str = '') -> List[Dict[str, Any]]:
         """资源搜索主函数"""
         if not query or len(query.strip()) < 1:
             return []
@@ -2419,7 +2588,7 @@ class ResourceSearch(BaseSearch):
         
         try:
             # 1. 直接访问配置的资源网站
-            sites = self._get_sites_by_type('resources')
+            sites = self._get_sites_by_type('resources', category)
             print(f"[DEBUG] 找到 {len(sites)} 个资源网站: {[site['domain'] for site in sites]}")
             timeout_per_site = self.config.get("settings", {}).get("site_timeout", 8)  # 每个网站的超时时间
             
@@ -2515,44 +2684,59 @@ class ResourceSearch(BaseSearch):
         """获取所有网站配置"""
         return self.config
     
-    def add_site(self, domain: str, site_type: str, search_urls: Optional[List[str]] = None) -> dict:
+    def add_site(self, domain: str, site_type: str, search_urls: Optional[List[str]] = None, category: str = 'custom') -> dict:
         """添加网站"""
         try:
             # 获取资源网站配置
             resource_sites = self.config.get("resource_sites", {})
-            custom_config = resource_sites.get("custom", {})
+            
+            # 如果分类不是custom，需要创建或使用指定分类
+            if category != 'custom':
+                if category not in resource_sites:
+                    # 创建新分类
+                    resource_sites[category] = {
+                        "domains": [],
+                        "enabled": True,
+                        "domain_status": {},
+                        "search_urls": {}
+                    }
+                
+                target_config = resource_sites[category]
+            else:
+                # 使用custom分类
+                target_config = resource_sites.get("custom", {})
             
             # 获取域名列表
-            domains = custom_config.get("domains", [])
+            domains = target_config.get("domains", [])
             
             # 检查域名是否已存在
             if domain in domains:
                 # 更新搜索URL
                 if search_urls:
-                    search_urls_dict = custom_config.get("search_urls", {})
+                    search_urls_dict = target_config.get("search_urls", {})
                     search_urls_dict[domain] = search_urls
-                    custom_config["search_urls"] = search_urls_dict
-                    resource_sites["custom"] = custom_config
+                    target_config["search_urls"] = search_urls_dict
+                    resource_sites[category] = target_config
                     self.config["resource_sites"] = resource_sites
                     self._save_config()
                 return {'success': True, 'action': 'updated', 'message': f'资源搜索网站 {domain} 已更新'}
             else:
                 # 添加新域名
                 domains.append(domain)
-                custom_config["domains"] = domains
+                target_config["domains"] = domains
                 
                 # 添加搜索URL
                 if search_urls:
-                    search_urls_dict = custom_config.get("search_urls", {})
+                    search_urls_dict = target_config.get("search_urls", {})
                     search_urls_dict[domain] = search_urls
-                    custom_config["search_urls"] = search_urls_dict
+                    target_config["search_urls"] = search_urls_dict
                 
                 # 设置域名状态为启用
-                domain_status = custom_config.get("domain_status", {})
+                domain_status = target_config.get("domain_status", {})
                 domain_status[domain] = True
-                custom_config["domain_status"] = domain_status
+                target_config["domain_status"] = domain_status
                 
-                resource_sites["custom"] = custom_config
+                resource_sites[category] = target_config
                 self.config["resource_sites"] = resource_sites
                 self._save_config()
                 
@@ -2765,7 +2949,7 @@ class UnifiedSearch:
             print(f"[DEBUG] 保存配置失败: {e}")
             raise e  # 重新抛出异常，让调用方知道保存失败
     
-    def search(self, query: str, search_type: str = 'web', page: int = 0, limit: Optional[int] = None, filter_mode: str = 'loose') -> List[Dict[str, Any]]:
+    def search(self, query: str, search_type: str = 'web', page: int = 0, limit: Optional[int] = None, filter_mode: str = 'loose', category: str = '') -> List[Dict[str, Any]]:
         """统一搜索接口
         
         Args:
@@ -2774,6 +2958,7 @@ class UnifiedSearch:
             page: 页码，从0开始
             limit: 结果数量限制
             filter_mode: 过滤模式 ('loose', 'strict', 'none')
+            category: 资源分类过滤（仅对resources类型有效）
             
         Returns:
             搜索结果列表
@@ -2787,7 +2972,7 @@ class UnifiedSearch:
         elif search_type == 'videos':
             return self.video_search.search(query, page, limit)
         elif search_type in ['files', 'resources']:
-            return self.resource_search.search(query, page, limit)
+            return self.resource_search.search(query, page, limit, category)
         else:
             print(f"[DEBUG] 未知的搜索类型: {search_type}")
             return []
@@ -2797,7 +2982,7 @@ class UnifiedSearch:
         """获取所有网站配置"""
         return self.config
     
-    def add_site(self, domain: str, site_type: str, search_urls: Optional[List[str]] = None) -> dict:
+    def add_site(self, domain: str, site_type: str, search_urls: Optional[List[str]] = None, category: str = 'custom') -> dict:
         """添加网站"""
         # 根据网站类型选择对应的搜索类
         if site_type == 'web':
@@ -2807,7 +2992,7 @@ class UnifiedSearch:
         elif site_type == 'videos':
             return self.video_search.add_site(domain, site_type, search_urls)
         elif site_type in ['files', 'resources']:
-            return self.resource_search.add_site(domain, site_type, search_urls)
+            return self.resource_search.add_site(domain, site_type, search_urls, category)
         else:
             return {'success': False, 'message': f'未知的网站类型: {site_type}'}
     
@@ -2870,6 +3055,131 @@ class UnifiedSearch:
             self.video_search.update_site_search_urls(site_type, domain, search_urls)
         elif site_type in ['files', 'resources']:
             self.resource_search.update_site_search_urls(site_type, domain, search_urls)
+    
+    def add_category(self, name: str, description: str = '') -> dict:
+        """添加资源分类"""
+        try:
+            # 获取资源分类配置
+            resource_categories = self.config.get("resource_categories", {})
+            
+            # 检查分类是否已存在
+            if name in resource_categories:
+                return {'success': False, 'message': f'分类 "{name}" 已存在'}
+            
+            # 添加新分类
+            resource_categories[name] = {
+                "description": description,
+                "created_at": time.time()
+            }
+            
+            self.config["resource_categories"] = resource_categories
+            self._save_config()
+            
+            return {'success': True, 'message': f'分类 "{name}" 添加成功'}
+            
+        except Exception as e:
+            print(f"[DEBUG] 添加分类失败: {e}")
+            return {'success': False, 'message': f'添加失败: {str(e)}'}
+    
+    def delete_category(self, name: str) -> dict:
+        """删除资源分类"""
+        try:
+            # 获取资源分类配置
+            resource_categories = self.config.get("resource_categories", {})
+            
+            # 检查分类是否存在
+            if name not in resource_categories:
+                return {'success': False, 'message': f'分类 "{name}" 不存在'}
+            
+            # 检查是否有网站使用此分类
+            resource_sites = self.config.get("resource_sites", {})
+            if name in resource_sites and resource_sites[name].get("domains"):
+                return {'success': False, 'message': f'分类 "{name}" 下还有网站，无法删除'}
+            
+            # 删除分类
+            del resource_categories[name]
+            self.config["resource_categories"] = resource_categories
+            self._save_config()
+            
+            return {'success': True, 'message': f'分类 "{name}" 删除成功'}
+            
+        except Exception as e:
+            print(f"[DEBUG] 删除分类失败: {e}")
+            return {'success': False, 'message': f'删除失败: {str(e)}'}
+    
+    def add_site_to_category(self, domain: str, site_type: str, target_category: str) -> dict:
+        """将网站添加到指定分类（支持多分类）"""
+        try:
+            if site_type not in ['files', 'resources']:
+                return {'success': False, 'message': '只有资源网站支持分类'}
+            
+            # 获取资源网站配置
+            resource_sites = self.config.get("resource_sites", {})
+            
+            # 检查网站是否存在于custom分类中（主分类）
+            custom_sites = resource_sites.get("custom", {})
+            if domain not in custom_sites.get("domains", []):
+                return {'success': False, 'message': f'网站 {domain} 不存在'}
+            
+            # 确保目标分类存在
+            if target_category not in resource_sites:
+                resource_sites[target_category] = {
+                    "domains": [],
+                    "enabled": True
+                }
+            
+            # 将网站添加到目标分类（如果尚未存在）
+            target_config = resource_sites[target_category]
+            domains = target_config.get("domains", [])
+            
+            if domain in domains:
+                return {'success': True, 'message': f'网站 {domain} 已在分类 {target_category} 中'}
+            
+            # 只添加域名，不复制URL和状态
+            domains.append(domain)
+            target_config["domains"] = domains
+            
+            resource_sites[target_category] = target_config
+            self.config["resource_sites"] = resource_sites
+            self._save_config()
+            
+            return {'success': True, 'message': f'网站 {domain} 已添加到分类 {target_category}'}
+            
+        except Exception as e:
+            print(f"[DEBUG] 添加网站到分类失败: {e}")
+            return {'success': False, 'message': f'添加失败: {str(e)}'}
+    
+    def remove_site_from_category(self, domain: str, site_type: str, category: str) -> dict:
+        """从指定分类中移除网站"""
+        try:
+            if site_type not in ['files', 'resources']:
+                return {'success': False, 'message': '只有资源网站支持分类'}
+            
+            # 获取资源网站配置
+            resource_sites = self.config.get("resource_sites", {})
+            
+            if category not in resource_sites:
+                return {'success': False, 'message': f'分类 {category} 不存在'}
+            
+            config = resource_sites[category]
+            domains = config.get("domains", [])
+            
+            if domain not in domains:
+                return {'success': False, 'message': f'网站 {domain} 不在分类 {category} 中'}
+            
+            # 从分类中移除网站（只移除域名）
+            domains.remove(domain)
+            config["domains"] = domains
+            
+            resource_sites[category] = config
+            self.config["resource_sites"] = resource_sites
+            self._save_config()
+            
+            return {'success': True, 'message': f'网站 {domain} 已从分类 {category} 中移除'}
+            
+        except Exception as e:
+            print(f"[DEBUG] 从分类移除网站失败: {e}")
+            return {'success': False, 'message': f'移除失败: {str(e)}'}
 
 
 # 为了保持向后兼容性，创建一个新的WebSearch类
